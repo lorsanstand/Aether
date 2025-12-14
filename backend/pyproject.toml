@@ -1,0 +1,18 @@
+[project]
+name = "aetherbackend"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "lorsan",email = "stasstrochewskij@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard] (>=0.124.4,<0.125.0)",
+    "sqlalchemy (>=2.0.45,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
