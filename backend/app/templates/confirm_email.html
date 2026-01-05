@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение email — {{company_name}}</title>
+    <style>
+        /* Подключаем шрифты (Lora для заголовков, Inter для текста) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Lora:ital,wght@0,600;1,600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            line-height: 1.6;
+            color: #2C2C2C; /* Антрацит из концепта */
+            background-color: #F5F5F1; /* Слоновая кость */
+            padding: 40px 20px;
+        }
+        .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 16px; /* Мягкие скругления */
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(107, 112, 92, 0.08); /* Легкая оливковая тень */
+        }
+        .logo-section {
+            text-align: center;
+            padding: 40px 30px 20px;
+            background-color: #EBEBE6; /* Песочный серый для разделения */
+        }
+        .logo-text {
+            font-family: 'Lora', serif;
+            font-size: 24px;
+            letter-spacing: 3px;
+            color: #6B705C; /* Оливковый акцент */
+            text-transform: uppercase;
+        }
+        .email-body {
+            padding: 40px 50px;
+            background: #ffffff;
+        }
+        h1 {
+            font-family: 'Lora', serif;
+            font-size: 26px;
+            color: #2C2C2C;
+            margin-bottom: 24px;
+            font-weight: 600;
+            text-align: center;
+        }
+        p {
+            color: #555555;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .username {
+            color: #D27D56; /* Терракотовый акцент */
+            font-weight: 600;
+        }
+        .button-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 18px 44px;
+            background-color: #D27D56; /* Терракотовый */
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 30px; /* Очень круглые кнопки */
+            font-weight: 600;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .divider {
+            margin: 40px auto;
+            width: 100%;
+            height: 1px;
+            background-color: #EBEBE6;
+        }
+        .link-box {
+            background-color: #F9F9F7;
+            border: 1px dashed #6B705C; /* Оливковая пунктирная рамка */
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .link-label {
+            font-size: 12px;
+            color: #6B705C;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        .link-text {
+            color: #D27D56;
+            word-break: break-all;
+            font-size: 13px;
+            font-family: monospace;
+        }
+        .info-box {
+            text-align: center;
+            color: #888888;
+            font-size: 13px;
+            margin-top: 20px;
+        }
+        .footer {
+            padding: 40px 50px;
+            text-align: center;
+            background-color: #F9F9F7;
+            color: #8B8B8B;
+            font-size: 13px;
+        }
+        .footer-brand {
+            font-family: 'Lora', serif;
+            color: #6B705C;
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="logo-section">
+            <div class="logo-text">{{company_name}}</div>
+        </div>
+        <div class="email-body">
+            <h1>Подтверждение почты</h1>
+            <p>Здравствуйте, <span class="username">{{username}}</span>!</p>
+            <p>Мы рады приветствовать вас в <b>{{company_name}}</b> — пространстве для спокойного общения. Чтобы начать путь, пожалуйста, подтвердите ваш электронный адрес.</p>
+            
+            <div class="button-container">
+                <a href="{{url}}" class="cta-button">Активировать аккаунт</a>
+            </div>
+            
+            <div class="info-box">
+                Ссылка будет активна в течение {{expire_minutes}} минут.
+            </div>
+
+            <div class="divider"></div>
+            
+            <div class="link-box">
+                <div class="link-label">Или скопируйте ссылку в браузер:</div>
+                <div class="link-text">{{url}}</div>
+            </div>
+            
+            <p style="font-size: 14px; color: #999; margin-top: 30px; text-align: center; font-style: italic;">
+                Если вы не регистрировались в {{company_name}}, просто проигнорируйте это письмо.
+            </p>
+        </div>
+        <div class="footer">
+            <div class="footer-brand">{{company_name}}</div>
+            <div>Сделано с заботой о вашем спокойствии</div>
+        </div>
+    </div>
+</body>
+</html>
