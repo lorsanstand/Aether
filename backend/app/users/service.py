@@ -8,6 +8,7 @@ from jose import jwt
 from sqlalchemy import or_
 
 from app.utils.hash_password import hash_password, verify_password
+from app.services.redis_service import RefreshTokenStorage, EmailTokenStorage
 from app.utils.redis import get_redis
 from app.exceptions import InvalidTokenException, TokenExpiredException
 from app.users.models import UserModel
@@ -23,29 +24,26 @@ log = logging.getLogger(__name__)
 class AuthService:
     @classmethod
     async def create_token(cls, user_id: int) -> Token:
-        redis_client = await get_redis()
 
         access_token = cls._create_access_token(user_id)
         refresh_token_expires = timedelta(
             days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         refresh_token = cls._create_refresh_token()
 
-        await redis_client.setex(f"refresh:{refresh_token}", int(refresh_token_expires.total_seconds()), user_id)
+        await RefreshTokenStorage.save_token(refresh_token, user_id, int(refresh_token_expires.total_seconds()))
 
         log.info("Token created has user", extra={"user_id": user_id})
         return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
 
     @classmethod
     async def logout(cls, token: uuid.UUID) -> None:
-        redis_client = await get_redis()
-        user_id = await redis_client.getdel(f"refresh:{token}")
+        user_id = await RefreshTokenStorage.getdel_token(token)
         log.info("User logged out", extra={"user_id": user_id})
 
     @classmethod
     async def refresh_token(cls, token: uuid.UUID) -> Token:
-        redis_client = await get_redis()
         async with async_session_maker() as session:
-            refresh_session = await redis_client.getdel(f"refresh:{token}")
+            refresh_session = await RefreshTokenStorage.getdel_token(token)
 
             if refresh_session is None:
                 log.warning("Refresh token not found")
@@ -61,10 +59,10 @@ class AuthService:
                 days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
             refresh_token = cls._create_refresh_token()
 
-            await redis_client.setex(
-                f"refresh:{refresh_token}",
-                int(refresh_token_expires.total_seconds()),
-                user.id
+            await RefreshTokenStorage.save_token(
+                refresh_token,
+                user.id,
+                int(refresh_token_expires.total_seconds())
             )
 
             await session.commit()
@@ -87,11 +85,9 @@ class AuthService:
         log.warning("Authentication failed", extra={"email": email_or_username})
         return None
 
-    # @classmethod
-    # async def abort_all_sessions(cls, user_id: uuid.UUID):
-    #     async with async_session_maker() as session:
-    #         await RefreshSessionDAO.delete(session, RefreshSessionModel.user_id == user_id)
-    #         await session.commit()
+    @classmethod
+    async def abort_all_sessions(cls, user_id: int):
+        await RefreshTokenStorage.abort_all_tokens(user_id)
 
     @classmethod
     def _create_access_token(cls, user_id: int) -> str:
@@ -105,7 +101,7 @@ class AuthService:
         return f'Bearer {encoded_jwt}'
 
     @classmethod
-    def _create_refresh_token(cls) -> str:
+    def _create_refresh_token(cls) -> uuid.UUID:
         return uuid.uuid4()
 
 
@@ -159,8 +155,13 @@ class UserService:
 
         token = cls._create_email_verification_token()
         url = f"{settings.URL}/api/v1/auth/verify/{token}"
+        email_token_expires = timedelta(minutes=settings.EMAIL_TOKEN_EXPIRE_MINUTES)
 
-        await redis_client.setex(f"email:{token}", timedelta(minutes=60), user.id)
+        await EmailTokenStorage.save_token(
+            token,
+            user.id,
+            int(email_token_expires.total_seconds())
+        )
         EmailTasks.send_verify_email_task.delay(email=user.email, username=user.username, url=url)
 
 
@@ -173,7 +174,7 @@ class UserService:
     async def verify_email(cls, token: uuid.UUID):
         redis_client = await get_redis()
         async with async_session_maker() as session:
-            user_id = await redis_client.getdel(f"email:{token}")
+            user_id = await EmailTokenStorage.getdel_token(token)
 
             if user_id is None:
                 raise TokenExpiredException

@@ -1,7 +1,8 @@
+from typing import Dict
 import logging
 import uuid
 
-from fastapi import APIRouter, status, Response, Depends, Request
+from fastapi import APIRouter, status, Response, Depends, Request, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.users.schemas import UserCreate, User, Token
@@ -16,18 +17,20 @@ auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 
 log = logging.getLogger(__name__)
 
-
 @auth_router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register(user: UserCreate) -> User:
     return await UserService.register_new_user(user)
 
 @auth_router.get("/verify/{token}")
-async def verify_email(token: uuid.UUID):
+async def verify_email(token: uuid.UUID) -> Dict:
     await UserService.verify_email(token)
-    return {"status": True}
+    return {"status": True, "message": "User successfully verified email"}
 
-@auth_router.post("/send/verify_email")
-async def resend_verify_email(user: UserModel = Depends(get_current_user)):
+@auth_router.post("/send/verify-email")
+async def resend_verify_email(user: UserModel = Depends(get_current_user)) -> Dict:
+    if user.is_verified:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="Email already verified")
+
     await UserService.send_verify_email(user)
     return {"status": True, "message": "Successfully send email letter"}
 
@@ -72,9 +75,14 @@ async def refresh_token(request: Request, response: Response) -> Token:
     return new_token
 
 @auth_router.post("/logout")
-async def logout(request: Request, response: Response, user: UserModel = Depends(get_current_user)):
+async def logout(request: Request, response: Response, user: UserModel = Depends(get_current_user)) -> Dict:
     response.delete_cookie("access_token")
     response.delete_cookie("refresh_token")
 
     await AuthService.logout(uuid.UUID(request.cookies.get("refresh_token")))
     return {"status": True, "message": "Logged out successfully"}
+
+@auth_router.post("/abort")
+async def abort_all_sessions(user: UserModel = Depends(get_current_user)) -> Dict:
+    await AuthService.abort_all_sessions(user.id)
+    return {"status": True, "message": "All sessions was aborted"}

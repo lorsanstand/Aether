@@ -16,7 +16,7 @@ class EmailService:
                 template_path="confirm_email.html",
                 username=username,
                 url=url,
-                expire_minutes=60,
+                expire_minutes=settings.EMAIL_TOKEN_EXPIRE_MINUTES,
                 company_name=settings.COMPANY_NAME
             )
             body = EmailClient.render(
