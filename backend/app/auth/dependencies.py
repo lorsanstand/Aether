@@ -1,15 +1,14 @@
 import logging
 from typing import Optional
-import uuid
 
 from fastapi import Depends, HTTPException, status
 from jose import jwt, JWTError
 
 from app.utils.OAuth2WithCookie import OAuth2PasswordBearerWithCookie
-from app.config import settings
+from app.core.config import settings
 from app.users.models import UserModel
 from app.users.service import UserService
-from app.exceptions import InvalidTokenException
+from app.core.exceptions import InvalidTokenException
 
 log = logging.getLogger(__name__)
 oauth2_scheme = OAuth2PasswordBearerWithCookie(tokenUrl="/api/v1/auth/login")
@@ -52,5 +51,7 @@ async def get_current_superuser(current_user: UserModel = Depends(get_current_us
 
 async def get_current_verified_user(current_user: UserModel = Depends(get_current_user)):
     if not current_user.is_verified:
-        log.debug("User has not confirmed the email.", extra={"user_id": current_user.id})
+        log.debug("User has not confirmed the email.", extra={"user_id": str(current_user.id)})
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="verify email")
+
+    return current_user

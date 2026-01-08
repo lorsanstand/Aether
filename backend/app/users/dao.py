@@ -1,4 +1,4 @@
-from app.dao import BaseDAO
+from app.core.dao import BaseDAO
 from app.users.models import UserModel
 from app.users.schemas import UserCreateDB, UserUpdateDB
 

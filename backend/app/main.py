@@ -5,10 +5,11 @@ import logging
 from fastapi import FastAPI, APIRouter, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.utils.redis import close_redis, init_redis
-from app.users.router import user_router, auth_router
-from app.log_config import set_logging
-from app.config import settings
+from app.core.redis import close_redis, init_redis
+from app.users.router import router as user_router
+from app.auth.router import router as auth_router
+from app.core.log_config import set_logging
+from app.core.config import settings
 
 set_logging()
 log = logging.getLogger(__name__)

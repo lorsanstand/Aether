@@ -1,7 +1,7 @@
 import logging
 
 from app.utils.email_client import EmailClient
-from app.config import settings
+from app.core.config import settings
 
 log = logging.getLogger(__name__)
 

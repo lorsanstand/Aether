@@ -1,6 +1,5 @@
 from typing import Optional
 from datetime import date
-import uuid
 
 from pydantic import BaseModel, EmailStr
 
@@ -50,15 +49,10 @@ class UserCreateDB(UserBase):
 
 class UserUpdateDB(UserBase):
     email: Optional[str] = None
-    hashed_password: str
+    hashed_password: Optional[str] = None
     description: Optional[str] = None
     birth_day: Optional[date] = None
     is_active: Optional[bool] = None
     is_verified: Optional[bool] = None
     is_superuser: Optional[bool] = None
-
-class Token(BaseModel):
-    access_token: str
-    refresh_token: uuid.UUID
-    token_type: str
 

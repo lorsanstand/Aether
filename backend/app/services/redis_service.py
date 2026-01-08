@@ -1,7 +1,7 @@
 import logging
 import uuid
 
-from app.utils.redis import get_redis
+from app.core.redis import get_redis
 
 log = logging.getLogger(__name__)
 
