@@ -11,3 +11,9 @@ class EmailTasks:
     @celery_app.task
     def send_verify_email_task(email: str, username: str, url: str):
         EmailService.send_verify_email(email, username, url)
+
+
+    @staticmethod
+    @celery_app.task
+    def send_reset_password_email_task(email: str, username: str, url: str):
+        EmailService.send_reset_password_email(email, username, url)

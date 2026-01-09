@@ -31,3 +31,28 @@ class EmailService:
         except Exception as e:
             log.error("Failed to send email to %s", email, extra={"email": email})
             raise e
+
+
+    @classmethod
+    def send_reset_password_email(cls, email: str, username: str, url: str):
+        log.debug("Sending email to %s", email, extra={"email": email})
+        try:
+            subject = "Подтверждение эл. почты"
+            html = EmailClient.render(
+                template_path="reset_password.html",
+                username=username,
+                url=url,
+                company_name=settings.COMPANY_NAME
+            )
+            body = EmailClient.render(
+                template_path="confirm_email.txt",
+                username=username,
+                url=url,
+                company_name=settings.COMPANY_NAME
+            )
+
+            EmailClient.send_email(to=email, subject=subject, html=html, body=body)
+            log.info("Verify email sent to %s", email, extra={"email": email})
+        except Exception as e:
+            log.error("Failed to send email to %s", email, extra={"email": email})
+            raise e

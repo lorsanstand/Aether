@@ -5,13 +5,13 @@ import uuid
 from fastapi import APIRouter, status, Response, Depends, Request, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.users.schemas import UserCreate, User
+from app.users.schemas import UserCreate, User, ChangePassword
 from app.auth.schemas import Token
 from app.users.service import UserService
 from app.auth.service import AuthService
 from app.users.models import UserModel
 from app.core.exceptions import InvalidCredentialsException
-from app.auth.dependencies import get_current_user
+from app.auth.dependencies import get_current_user, get_current_verified_user
 from app.core.config import settings
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -22,12 +22,12 @@ log = logging.getLogger(__name__)
 async def register(user: UserCreate) -> User:
     return await UserService.register_new_user(user)
 
-@router.get("/verify/{token}")
+@router.post("/email/verify/{token}")
 async def verify_email(token: uuid.UUID) -> Dict:
     await UserService.verify_email(token)
     return {"status": True, "message": "User successfully verified email"}
 
-@router.post("/send/verify-email")
+@router.post("/email/resend-verification")
 async def resend_verify_email(user: UserModel = Depends(get_current_user)) -> Dict:
     if user.is_verified:
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="Email already verified")
@@ -87,3 +87,23 @@ async def logout(request: Request, response: Response, user: UserModel = Depends
 async def abort_all_sessions(user: UserModel = Depends(get_current_user)) -> Dict:
     await AuthService.abort_all_sessions(user.id)
     return {"status": True, "message": "All sessions was aborted"}
+
+@router.post("/password/change")
+async def change_password(
+        passwords: ChangePassword,
+        user: UserModel = Depends(get_current_verified_user)
+) -> Dict:
+    await UserService.change_password(user, passwords)
+    return {"status": True, "message": "Successfully change password"}
+
+@router.post("/password/reset")
+async def send_reset_password_email(
+        username: str
+) -> Dict:
+    await UserService.send_reset_password_email(username)
+    return {"status": True, "message": "Successfully send email reset password"}
+
+@router.post("/password/reset/{token}")
+async def reset_password(token: uuid.UUID, new_password: str) -> Dict:
+    await UserService.reset_password(token, new_password)
+    return {"status": True, "message": "Successfully reset password"}

@@ -6,14 +6,13 @@ from typing import List
 from fastapi import HTTPException, status
 from sqlalchemy import or_
 
-from app.utils.hash_password import hash_password
-from app.services.redis_service import EmailTokenStorage
-from app.core.redis import get_redis
-from app.core.exceptions import InvalidTokenException, TokenExpiredException
+from app.utils.hash_password import hash_password, verify_password
+from app.services.redis_service import EmailTokenStorage, ChangePasswordTokenStorage
+from app.core.exceptions import InvalidTokenException, TokenExpiredException, UserNotFoundException
 from app.users.models import UserModel
 from app.users.dao import UserDAO
 from app.core.database import async_session_maker
-from app.users.schemas import UserCreate, UserCreateDB, User, UserUpdate, UserUpdateDB
+from app.users.schemas import UserCreate, UserCreateDB, User, UserUpdate, UserUpdateDB, ChangePassword
 from app.tasks.email_tasks import EmailTasks
 from app.core.config import settings
 
@@ -27,7 +26,7 @@ class UserService:
             user_exist = await UserDAO.find_one_or_none(session, id=user_id)
             if user_exist is None:
                 log.warning("User not found", extra={"user_id": user_id})
-                raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
+                raise UserNotFoundException
             log.debug("User fetched", extra={"user_id": user_id})
 
             return user_exist
@@ -64,10 +63,8 @@ class UserService:
 
     @classmethod
     async def send_verify_email(cls, user: UserModel):
-        redis_client = await get_redis()
-
-        token = cls._create_email_verification_token()
-        url = f"{settings.URL}/api/v1/auth/verify/{token}"
+        token = cls._create_uuid_token()
+        url = f"{settings.URL}/verify-email/{token}"
         email_token_expires = timedelta(minutes=settings.EMAIL_TOKEN_EXPIRE_MINUTES)
 
         await EmailTokenStorage.save_token(
@@ -79,7 +76,7 @@ class UserService:
 
 
     @classmethod
-    def _create_email_verification_token(cls) -> uuid.UUID:
+    def _create_uuid_token(cls) -> uuid.UUID:
         return uuid.uuid4()
 
 
@@ -99,11 +96,11 @@ class UserService:
 
             await UserDAO.update(
                 session,
-                UserModel.id==int(user_id),
+                UserModel.id==user_exist.id,
                 obj_in={"is_verified": True}
             )
-
             await session.commit()
+            log.info("Email verified", extra={"email": user_exist.email, "user_id": user_exist.id})
 
 
     @classmethod
@@ -113,20 +110,20 @@ class UserService:
 
             if users is None:
                 log.warning("Users not found")
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Users not found")
+                raise UserNotFoundException
             log.debug("Users fetched", extra={"count": len(users), "offset": offset, "limit": limit})
             return users
 
 
     @classmethod
-    async def update_user(cls, user_id: int, update_user: UserUpdate):
+    async def update_user(cls, user_id: int, update_user: UserUpdate) -> User:
         async with async_session_maker() as session:
 
             user_exist = await UserDAO.find_one_or_none(session, id=user_id)
 
             if user_exist is None:
                 log.warning("User not found", extra={"user_id": user_id})
-                raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
+                raise UserNotFoundException
 
             if user_exist.username != update_user.username:
                 username_exist = await UserDAO.find_one_or_none(session, username=update_user.username)
@@ -153,7 +150,7 @@ class UserService:
 
             if user_exist is None:
                 log.warning("User not found", extra={"user_id": user_id})
-                raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
+                raise UserNotFoundException
 
             await UserDAO.update(
                 session,
@@ -162,3 +159,66 @@ class UserService:
             )
             await session.commit()
             log.info("User is inactive", extra={"user_id": user_id})
+
+
+    @classmethod
+    async def change_password(cls, user: UserModel, change_password: ChangePassword):
+        async with async_session_maker() as session:
+            if not verify_password(change_password.old_password, user.hashed_password):
+                log.warning("Invalid current password", extra={"user_id": user.id})
+                raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid current password")
+
+            await UserDAO.update(
+                session,
+                UserModel.id==user.id,
+                obj_in={"hashed_password": hash_password(change_password.new_password)}
+            )
+            await session.commit()
+            log.info("Successfully changed password", extra={"user_id": user.id})
+
+
+    @classmethod
+    async def send_reset_password_email(cls, username: str):
+        async with async_session_maker() as session:
+            user = await UserDAO.find_one_or_none(session, username=username)
+
+            if user is None:
+                raise UserNotFoundException
+
+            token = cls._create_uuid_token()
+            url = f"{settings.URL}/reset-password/{token}"
+            token_expires = timedelta(minutes=settings.EMAIL_TOKEN_EXPIRE_MINUTES)
+
+            await ChangePasswordTokenStorage.save_token(
+                token,
+                user.id,
+                int(token_expires.total_seconds())
+            )
+
+            EmailTasks.send_reset_password_email_task.delay(
+                email=user.email,
+                username=user.username,
+                url=url
+            )
+
+
+    @classmethod
+    async def reset_password(cls, token: uuid.UUID, new_password: str):
+        async with async_session_maker() as session:
+            user_id = await ChangePasswordTokenStorage.getdel_token(token)
+
+            if user_id is None:
+                raise TokenExpiredException
+
+            user_exist = await UserDAO.find_one_or_none(session, id=int(user_id))
+
+            if user_exist is None:
+                raise InvalidTokenException
+
+            await UserDAO.update(
+                session,
+                UserModel.id==user_exist.id,
+                obj_in={"hashed_password": hash_password(new_password)}
+            )
+            await session.commit()
+            log.info("Successfully reset password", extra={"user_id": user_id})

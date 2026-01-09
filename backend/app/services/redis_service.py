@@ -1,9 +1,27 @@
 import logging
 import uuid
+from typing import Optional
 
 from app.core.redis import get_redis
 
 log = logging.getLogger(__name__)
+
+class TokenStorage:
+    PREFIX: Optional[str] = None
+
+    @classmethod
+    async def save_token(cls, token: uuid.UUID, user_id: int, ttl: int):
+        redis_client = await get_redis()
+
+        await redis_client.setex(f"{cls.PREFIX}:{token}", ttl, user_id)
+
+        log.info("Save new %s token from redis", cls.PREFIX, extra={"user_id": user_id, "token": token})
+
+    @classmethod
+    async def getdel_token(cls, token: uuid.UUID) -> int:
+        redis_client = await get_redis()
+        log.debug("User_id fetched from %s token", cls.PREFIX, extra={"token": token})
+        return await redis_client.getdel(f"{cls.PREFIX}:{token}")
 
 
 class RefreshTokenStorage:
@@ -53,20 +71,9 @@ class RefreshTokenStorage:
 
 
 
-class EmailTokenStorage:
-    PREFIX: str = "email"
-
-    @classmethod
-    async def save_token(cls, token: uuid.UUID, user_id: int, ttl: int):
-        redis_client = await get_redis()
-
-        await redis_client.setex(f"{cls.PREFIX}:{token}", ttl, user_id)
-
-        log.info("Save new refresh token from redis", extra={"user_id": user_id, "token": token})
+class EmailTokenStorage(TokenStorage):
+    PREFIX = "email"
 
 
-    @classmethod
-    async def getdel_token(cls, token: uuid.UUID) -> int:
-        redis_client = await get_redis()
-        log.debug("User_id fetched from email token", extra={"token": token})
-        return await redis_client.getdel(f"{cls.PREFIX}:{token}")
+class ChangePasswordTokenStorage(TokenStorage):
+    PREFIX = "changepassword"

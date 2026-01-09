@@ -56,3 +56,6 @@ class UserUpdateDB(UserBase):
     is_verified: Optional[bool] = None
     is_superuser: Optional[bool] = None
 
+class ChangePassword(BaseModel):
+    old_password: str
+    new_password: str
