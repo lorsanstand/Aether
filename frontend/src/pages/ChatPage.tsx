@@ -1,8 +1,10 @@
 import { useAuthStore } from '../store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 export default function ChatPage() {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     // TODO: Call logout API
@@ -21,6 +23,12 @@ export default function ChatPage() {
           
           <div className="p-4">
             <p className="text-sm text-text-muted font-inter">Привет, {user?.username}!</p>
+            <button
+              onClick={() => navigate('/profile')}
+              className="mt-2 text-sm text-accent-olive hover:opacity-70 font-inter block"
+            >
+              Мой профиль
+            </button>
             <button
               onClick={handleLogout}
               className="mt-2 text-sm text-error-soft hover:text-red-700 font-inter"

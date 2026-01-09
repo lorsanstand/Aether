@@ -1,10 +1,5 @@
 import { create } from 'zustand';
-
-interface User {
-  id: string;
-  email: string;
-  username: string;
-}
+import type { User } from '../services/userService';
 
 interface AuthStore {
   user: User | null;

@@ -28,6 +28,11 @@ class Settings(BaseSettings):
     SMTP_PORT: int
     SMTP_EMAIL: str
     SMTP_PASS: str
+
+    S3_URL: str
+    S3_ACCESS_KEY_ID: str
+    S3_SECRET_ACCESS_KEY: str
+    S3_BUCKET_NAME: str
     
     DB_HOST: str
     DB_PORT: int

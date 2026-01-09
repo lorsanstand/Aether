@@ -1,4 +1,5 @@
 import apiClient from './api';
+import type { User } from './userService';
 
 export interface LoginData {
   username: string;
@@ -47,7 +48,7 @@ export const authService = {
     return response.data;
   },
 
-  getCurrentUser: async () => {
+  getCurrentUser: async (): Promise<User> => {
     const response = await apiClient.get('/users/me');
     return response.data;
   },
