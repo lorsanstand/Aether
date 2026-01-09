@@ -1,6 +1,6 @@
 from logging.config import dictConfig
 
-from app.config import settings
+from app.core.config import settings
 
 LOGGING_CONFIG = {
     "version": 1,

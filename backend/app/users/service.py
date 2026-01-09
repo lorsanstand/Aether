@@ -1,112 +1,22 @@
 import logging
 import uuid
-from datetime import datetime, timedelta
-from typing import Optional
+from datetime import timedelta
+from typing import List
 
 from fastapi import HTTPException, status
-from jose import jwt
 from sqlalchemy import or_
 
 from app.utils.hash_password import hash_password, verify_password
-from app.utils.redis import get_redis
-from app.exceptions import InvalidTokenException, TokenExpiredException
+from app.services.redis_service import EmailTokenStorage, ChangePasswordTokenStorage
+from app.core.exceptions import InvalidTokenException, TokenExpiredException, UserNotFoundException
 from app.users.models import UserModel
 from app.users.dao import UserDAO
-from app.database import async_session_maker
-from app.users.schemas import Token, UserCreate, UserCreateDB, User
+from app.core.database import async_session_maker
+from app.users.schemas import UserCreate, UserCreateDB, User, UserUpdate, UserUpdateDB, ChangePassword
 from app.tasks.email_tasks import EmailTasks
-from app.config import settings
+from app.core.config import settings
 
 log = logging.getLogger(__name__)
-
-
-class AuthService:
-    @classmethod
-    async def create_token(cls, user_id: int) -> Token:
-        redis_client = await get_redis()
-
-        access_token = cls._create_access_token(user_id)
-        refresh_token_expires = timedelta(
-            days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-        refresh_token = cls._create_refresh_token()
-
-        await redis_client.setex(f"refresh:{refresh_token}", int(refresh_token_expires.total_seconds()), user_id)
-
-        log.info("Token created has user", extra={"user_id": user_id})
-        return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
-
-    @classmethod
-    async def logout(cls, token: uuid.UUID) -> None:
-        redis_client = await get_redis()
-        user_id = await redis_client.getdel(f"refresh:{token}")
-        log.info("User logged out", extra={"user_id": user_id})
-
-    @classmethod
-    async def refresh_token(cls, token: uuid.UUID) -> Token:
-        redis_client = await get_redis()
-        async with async_session_maker() as session:
-            refresh_session = await redis_client.getdel(f"refresh:{token}")
-
-            if refresh_session is None:
-                log.warning("Refresh token not found")
-                raise InvalidTokenException
-
-            user = await UserDAO.find_one_or_none(session, id=int(refresh_session))
-            if user is None:
-                log.error("User not found during token refresh", extra={"user_id": str(refresh_session.user_id)})
-                raise InvalidTokenException
-
-            access_token = cls._create_access_token(user.id)
-            refresh_token_expires = timedelta(
-                days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-            refresh_token = cls._create_refresh_token()
-
-            await redis_client.setex(
-                f"refresh:{refresh_token}",
-                int(refresh_token_expires.total_seconds()),
-                user.id
-            )
-
-            await session.commit()
-            log.info("Token refreshed for user", extra={"user_id": str(user.id)})
-        return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
-
-    @classmethod
-    async def authenticate_user(cls, email_or_username: str, password: str) -> Optional[UserModel]:
-        async with async_session_maker() as session:
-            db_user = await UserDAO.find_one_or_none(
-                session,
-                or_(
-                    UserModel.email==email_or_username,
-                    UserModel.username==email_or_username
-                )
-            )
-        if db_user and verify_password(password, db_user.hashed_password):
-            log.info("User authenticated successfully", extra={"username": db_user.username})
-            return db_user
-        log.warning("Authentication failed", extra={"email": email_or_username})
-        return None
-
-    # @classmethod
-    # async def abort_all_sessions(cls, user_id: uuid.UUID):
-    #     async with async_session_maker() as session:
-    #         await RefreshSessionDAO.delete(session, RefreshSessionModel.user_id == user_id)
-    #         await session.commit()
-
-    @classmethod
-    def _create_access_token(cls, user_id: int) -> str:
-        to_encode = {
-            "sub": str(user_id),
-            "exp": datetime.utcnow() + timedelta(
-                minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-        }
-        encoded_jwt = jwt.encode(
-            to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-        return f'Bearer {encoded_jwt}'
-
-    @classmethod
-    def _create_refresh_token(cls) -> str:
-        return uuid.uuid4()
 
 
 class UserService:
@@ -116,7 +26,7 @@ class UserService:
             user_exist = await UserDAO.find_one_or_none(session, id=user_id)
             if user_exist is None:
                 log.warning("User not found", extra={"user_id": user_id})
-                raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
+                raise UserNotFoundException
             log.debug("User fetched", extra={"user_id": user_id})
 
             return user_exist
@@ -124,8 +34,6 @@ class UserService:
 
     @classmethod
     async def register_new_user(cls, user: UserCreate) -> User:
-        redis_client = await get_redis()
-
         async with async_session_maker() as session:
             user_exist = await UserDAO.find_one_or_none(session, or_(
                 UserModel.email==user.email,
@@ -155,25 +63,27 @@ class UserService:
 
     @classmethod
     async def send_verify_email(cls, user: UserModel):
-        redis_client = await get_redis()
+        token = cls._create_uuid_token()
+        url = f"{settings.URL}/verify-email/{token}"
+        email_token_expires = timedelta(minutes=settings.EMAIL_TOKEN_EXPIRE_MINUTES)
 
-        token = cls._create_email_verification_token()
-        url = f"{settings.URL}/api/v1/auth/verify/{token}"
-
-        await redis_client.setex(f"email:{token}", timedelta(minutes=60), user.id)
+        await EmailTokenStorage.save_token(
+            token,
+            user.id,
+            int(email_token_expires.total_seconds())
+        )
         EmailTasks.send_verify_email_task.delay(email=user.email, username=user.username, url=url)
 
 
     @classmethod
-    def _create_email_verification_token(cls) -> uuid.UUID:
+    def _create_uuid_token(cls) -> uuid.UUID:
         return uuid.uuid4()
 
 
     @classmethod
     async def verify_email(cls, token: uuid.UUID):
-        redis_client = await get_redis()
         async with async_session_maker() as session:
-            user_id = await redis_client.getdel(f"email:{token}")
+            user_id = await EmailTokenStorage.getdel_token(token)
 
             if user_id is None:
                 raise TokenExpiredException
@@ -186,8 +96,129 @@ class UserService:
 
             await UserDAO.update(
                 session,
-                UserModel.id==int(user_id),
+                UserModel.id==user_exist.id,
                 obj_in={"is_verified": True}
             )
-
             await session.commit()
+            log.info("Email verified", extra={"email": user_exist.email, "user_id": user_exist.id})
+
+
+    @classmethod
+    async def get_users_list(cls, offset: int = 0, limit: int = 10) -> List[UserModel]:
+        async with async_session_maker() as session:
+            users = await UserDAO.find_all(session, offset, limit)
+
+            if users is None:
+                log.warning("Users not found")
+                raise UserNotFoundException
+            log.debug("Users fetched", extra={"count": len(users), "offset": offset, "limit": limit})
+            return users
+
+
+    @classmethod
+    async def update_user(cls, user_id: int, update_user: UserUpdate) -> User:
+        async with async_session_maker() as session:
+
+            user_exist = await UserDAO.find_one_or_none(session, id=user_id)
+
+            if user_exist is None:
+                log.warning("User not found", extra={"user_id": user_id})
+                raise UserNotFoundException
+
+            if user_exist.username != update_user.username:
+                username_exist = await UserDAO.find_one_or_none(session, username=update_user.username)
+                if username_exist:
+                    log.warning("Username is taken", extra={"user_id": user_id})
+                    raise HTTPException(status.HTTP_409_CONFLICT, detail="Username is taken")
+
+            update_user_db = await UserDAO.update(
+                session,
+                UserModel.id==user_id,
+                obj_in=UserUpdateDB(
+                    **update_user.model_dump()
+                )
+            )
+            await session.commit()
+            log.info("User updated", extra={"user_id": user_id})
+            return update_user_db
+
+
+    @classmethod
+    async def delete_user(cls, user_id):
+        async with async_session_maker() as session:
+            user_exist = await UserDAO.find_one_or_none(session, id=user_id)
+
+            if user_exist is None:
+                log.warning("User not found", extra={"user_id": user_id})
+                raise UserNotFoundException
+
+            await UserDAO.update(
+                session,
+                UserModel.id==user_id,
+                obj_in={"is_active": False}
+            )
+            await session.commit()
+            log.info("User is inactive", extra={"user_id": user_id})
+
+
+    @classmethod
+    async def change_password(cls, user: UserModel, change_password: ChangePassword):
+        async with async_session_maker() as session:
+            if not verify_password(change_password.old_password, user.hashed_password):
+                log.warning("Invalid current password", extra={"user_id": user.id})
+                raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid current password")
+
+            await UserDAO.update(
+                session,
+                UserModel.id==user.id,
+                obj_in={"hashed_password": hash_password(change_password.new_password)}
+            )
+            await session.commit()
+            log.info("Successfully changed password", extra={"user_id": user.id})
+
+
+    @classmethod
+    async def send_reset_password_email(cls, username: str):
+        async with async_session_maker() as session:
+            user = await UserDAO.find_one_or_none(session, username=username)
+
+            if user is None:
+                raise UserNotFoundException
+
+            token = cls._create_uuid_token()
+            url = f"{settings.URL}/reset-password/{token}"
+            token_expires = timedelta(minutes=settings.EMAIL_TOKEN_EXPIRE_MINUTES)
+
+            await ChangePasswordTokenStorage.save_token(
+                token,
+                user.id,
+                int(token_expires.total_seconds())
+            )
+
+            EmailTasks.send_reset_password_email_task.delay(
+                email=user.email,
+                username=user.username,
+                url=url
+            )
+
+
+    @classmethod
+    async def reset_password(cls, token: uuid.UUID, new_password: str):
+        async with async_session_maker() as session:
+            user_id = await ChangePasswordTokenStorage.getdel_token(token)
+
+            if user_id is None:
+                raise TokenExpiredException
+
+            user_exist = await UserDAO.find_one_or_none(session, id=int(user_id))
+
+            if user_exist is None:
+                raise InvalidTokenException
+
+            await UserDAO.update(
+                session,
+                UserModel.id==user_exist.id,
+                obj_in={"hashed_password": hash_password(new_password)}
+            )
+            await session.commit()
+            log.info("Successfully reset password", extra={"user_id": user_id})

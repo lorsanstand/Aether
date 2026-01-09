@@ -14,13 +14,14 @@ class Settings(BaseSettings):
     WORKERS: int
     URL: str
 
-    CORS_ORIGINS: List[str] = ["*"]
+    CORS_ORIGINS: List[str] = ["http://localhost:5500", "http://127.0.0.1:5500", "http://localhost:8080", "http://127.0.0.1:8080", "null"]
     CORS_HEADERS: List[str] = ["*"]
     CORS_METHODS: List[str] = ["*"]
 
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    EMAIL_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     SMTP_SERVER: str

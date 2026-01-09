@@ -7,7 +7,7 @@ from email.mime.multipart import MIMEMultipart
 
 from jinja2 import Environment, FileSystemLoader
 
-from app.config import settings
+from app.core.config import settings
 
 log = logging.getLogger(__name__)
 

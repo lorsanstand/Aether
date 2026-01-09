@@ -1,12 +1,11 @@
 from datetime import datetime
 
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
-from sqlalchemy.engine import create_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import MetaData, NullPool, func
 
-from app.config import settings
-from app.constants import DB_NAMING_CONVENTION
+from app.core.config import settings
+from app.core.constants import DB_NAMING_CONVENTION
 
 
 class Base(DeclarativeBase):

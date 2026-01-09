@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 from pydantic import BaseModel
 
-from app.database import Base
+from app.core.database import Base
 
 log = logging.getLogger(__name__)
 

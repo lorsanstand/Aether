@@ -1,14 +1,17 @@
+import time
 from contextlib import asynccontextmanager
 import uvicorn
 import logging
+import uuid
 
 from fastapi import FastAPI, APIRouter, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.utils.redis import close_redis, init_redis
-from app.users.router import user_router, auth_router
-from app.log_config import set_logging
-from app.config import settings
+from app.core.redis import close_redis, init_redis
+from app.users.router import router as user_router
+from app.auth.router import router as auth_router
+from app.core.log_config import set_logging
+from app.core.config import settings
 
 set_logging()
 log = logging.getLogger(__name__)
@@ -45,19 +48,38 @@ app.add_middleware(
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    response: Response = await call_next(request)
+    request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
+    start_time = time.perf_counter()
+
     log.info(
-        "method=%s path=%s status=%s",
-        request.method,
-        request.url.path,
-        response.status_code,
+        "Started method=%s path=%s",
+        request.method, request.url.path,
         extra={
+            "request_id": request_id,
             "method": request.method,
             "path": request.url.path,
-            "status": response.status_code
+            "type": "start"
         }
     )
-    return response
+    try:
+        response: Response = await call_next(request)
+        process_time = time.perf_counter() - start_time
+
+        log.info(
+            "Finished method=%s path=%s status=%s duration=%.3fs",
+            request.method, request.url.path, response.status_code, process_time,
+            extra={
+                "request_id": request_id,
+                "status": response.status_code,
+                "duration": process_time,
+                "type": "end"
+            }
+        )
+        return response
+
+    except Exception as e:
+        log.error("Request failed id=%s error=%s", request_id, str(e))
+        raise
 
 
 @app.get("/health")
