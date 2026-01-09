@@ -3,11 +3,13 @@ import uuid
 from datetime import timedelta
 from typing import List
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, UploadFile
 from sqlalchemy import or_
+from sqlalchemy.orm.sync import update
 
 from app.utils.hash_password import hash_password, verify_password
 from app.services.redis_service import EmailTokenStorage, ChangePasswordTokenStorage
+from app.core.S3_client import s3_client
 from app.core.exceptions import InvalidTokenException, TokenExpiredException, UserNotFoundException
 from app.users.models import UserModel
 from app.users.dao import UserDAO
@@ -222,3 +224,55 @@ class UserService:
             )
             await session.commit()
             log.info("Successfully reset password", extra={"user_id": user_id})
+
+
+    @classmethod
+    async def upload_avatar(cls, user: UserModel, avatar: UploadFile) -> User:
+        async with async_session_maker() as session:
+            allowed_types = ["image/jpeg", "image/png", "image/gif"]
+
+            if not avatar.content_type in allowed_types:
+                log.warning("Using not allowed type photo", extra={"user_id": user.id})
+                raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="allowed type png and jpeg")
+
+            if user.avatar_url is not None:
+                await cls.delete_avatar(user)
+
+            type: str = avatar.filename.split(".")[-1]
+            object_name: str = f"avatar_{user.id}_{uuid.uuid4()}.{type}"
+
+            url = await s3_client.upload_file(
+                file=avatar.file.read(),
+                object_name=object_name,
+                content_type=avatar.content_type
+            )
+
+            update_user = await UserDAO.update(
+                session,
+                UserModel.id==user.id,
+                obj_in={"avatar_url": url}
+            )
+            await session.commit()
+            log.info("Successfully upload avatar", extra={"user_id": user.id, "avatar_url": url})
+            return update_user
+
+
+    @classmethod
+    async def delete_avatar(cls, user: UserModel):
+        async with async_session_maker() as session:
+
+            if user.avatar_url is None:
+                log.warning("Avatar is none", extra={"user_id": user.id})
+                return
+
+            avatar_name = user.avatar_url.split("/")[-1]
+
+            await s3_client.delete_file(avatar_name)
+
+            await UserDAO.update(
+                session,
+                UserModel.id==user.id,
+                obj_in={"avatar_url": None}
+            )
+            log.info("Avatar successfully deleted", extra={"user_id": user.id})
+            await session.commit()

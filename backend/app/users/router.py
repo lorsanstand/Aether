@@ -1,7 +1,7 @@
 from typing import Dict
 import logging
 
-from fastapi import APIRouter, Response, Depends
+from fastapi import APIRouter, Response, Depends, UploadFile, File
 
 from app.users.schemas import User, UserUpdate
 from app.users.service import UserService
@@ -37,3 +37,15 @@ async def delete_current_user(response: Response, user: UserModel = Depends(get_
     await AuthService.abort_all_sessions(user.id)
     await UserService.delete_user(user.id)
     return {"status": True, "message": "User successfully deleted"}
+
+@router.post("/me/avatar")
+async def upload_avatar(
+        avatar: UploadFile = File(...),
+        user: UserModel = Depends(get_current_verified_user)
+) -> User:
+    return await UserService.upload_avatar(user, avatar)
+
+@router.delete('/me/avatar')
+async def delete_avatar(user: UserModel = Depends(get_current_verified_user)) -> Dict:
+    await UserService.delete_avatar(user)
+    return {"status": True, "message": "Avatar successfully deleted"}
