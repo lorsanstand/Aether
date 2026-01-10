@@ -2,6 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Light Theme (Default) */
+:root,
+[data-theme='light'] {
+  --bg-primary: #F5F5F1;
+  --bg-card: #FFFFFF;
+  --bg-input: #F9F9F7;
+  --bg-input-disabled: #EFEFEF;
+  
+  --accent-primary: #6B705C;
+  --accent-primary-soft: rgba(107, 112, 92, 0.1);
+  --accent-secondary: #D27D56;
+  
+  --text-primary: #2C2C2C;
+  --text-secondary: #8B8B8B;
+  
+  --border-color: #E5E5E5;
+  --error-color: #C79A8B;
+  --error-soft: rgba(199, 154, 139, 0.1);
+}
+
+/* Dark Theme */
+[data-theme='dark'] {
+  --bg-primary: #1a1a1a;
+  --bg-card: #242424;
+  --bg-input: #2d2d2d;
+  --bg-input-disabled: #1f1f1f;
+  
+  --accent-primary: #8B9176;
+  --accent-primary-soft: rgba(139, 145, 118, 0.15);
+  --accent-secondary: #E29574;
+  
+  --text-primary: #E5E5E5;
+  --text-secondary: #A8A8A8;
+  
+  --border-color: #3a3a3a;
+  --error-color: #D89B8E;
+  --error-soft: rgba(216, 155, 142, 0.15);
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -10,5 +49,8 @@ body {
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #2C2C2C;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
+

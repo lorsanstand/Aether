@@ -21,7 +21,7 @@ export default function LoginForm() {
     setIsLoading(true);
 
     try {
-      const data = await authService.login({ username, password });
+      await authService.login({ username, password });
       const user = await authService.getCurrentUser();
       setUser(user);
       navigate('/chat');
@@ -55,9 +55,14 @@ export default function LoginForm() {
           <label htmlFor="password" className="block font-lora italic text-[15px] text-text-muted">
             Пароль
           </label>
-          <a href="#" className="font-inter text-sm hover:underline transition" style={{ color: '#6B705C' }}>
+          <button
+            type="button"
+            onClick={() => navigate('/forgot-password')}
+            className="font-inter text-sm hover:underline transition"
+            style={{ color: 'var(--accent-primary)' }}
+          >
             Забыли пароль?
-          </a>
+          </button>
         </div>
         <div className="relative">
           <input

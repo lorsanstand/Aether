@@ -29,6 +29,11 @@ async def lifespan(app: FastAPI):
 api_router = APIRouter(prefix="/api/v1")
 api_router.include_router(user_router)
 api_router.include_router(auth_router)
+
+@api_router.get("/health")
+async def test_health():
+    return {"status": True}
+
 app = FastAPI(
     title=settings.COMPANY_NAME,
     description="## Backend messenger aether",
@@ -82,24 +87,19 @@ async def log_requests(request: Request, call_next):
         raise
 
 
-@app.get("/health")
-async def test_health():
-    return {"status": True}
-
-
 if __name__ == "__main__":
     if settings.MODE == "PROD":
         UVICORN_PARAMS = dict(
-            host=settings.HOST,
-            port=settings.PORT,
+            host=settings.BACKEND_HOST,
+            port=settings.BACKEND_PORT,
             reload=False,
             workers=settings.WORKERS,
             access_log=False
         )
     else:
         UVICORN_PARAMS = dict(
-            host=settings.HOST,
-            port=settings.PORT,
+            host=settings.BACKEND_HOST,
+            port=settings.BACKEND_PORT,
             reload=True,
             access_log=False
         )

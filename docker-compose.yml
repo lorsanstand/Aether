@@ -1,0 +1,121 @@
+services:
+  database:
+    image: postgres:latest
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - aether
+    volumes:
+      - db-data:/var/lib/postgresql
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3.8-management
+    environment:
+      RABBITMQ_DEFAULT_USER: "${RMQ_USER}"
+      RABBITMQ_DEFAULT_PASS: "${RMQ_PASS}"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - aether
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      retries: 5
+    networks:
+      - aether
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+  prestart:
+    build:
+      context: ./backend
+    command: bash scripts/prestart.sh
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - aether
+    env_file:
+      - .env
+
+  celery:
+    build:
+      context: ./backend
+    command: celery -A app.core.celery_app.celery_app worker -l INFO
+    depends_on:
+      database:
+        condition: service_healthy
+      prestart:
+        condition: service_completed_successfully
+    networks:
+      - aether
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    depends_on:
+      database:
+        condition: service_healthy
+      prestart:
+        condition: service_completed_successfully
+      celery:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    ports:
+      - "3541:${BACKEND_PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "curl", "http://${BACKEND_HOST}:${BACKEND_PORT}/api/v1/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aether
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT}:3000"
+    networks:
+      - aether
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  rabbitmq-data:
+  redis-data:
+
+networks:
+  aether:

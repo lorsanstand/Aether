@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { authService } from '../services/authService';
+import miniLogo from '../assets/mini-logo.png';
 
 export default function VerifyEmailPage() {
   const { token } = useParams<{ token: string }>();
@@ -41,6 +42,9 @@ export default function VerifyEmailPage() {
       >
         <div className="bg-card-white rounded-[32px] shadow-soft p-8 text-center">
           <div className="mb-6">
+            <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+              <img src={miniLogo} alt="Aether Logo" className="w-full h-full object-contain" />
+            </div>
             <h1 className="text-2xl font-lora font-semibold text-accent-olive mb-2">Aether</h1>
           </div>
 

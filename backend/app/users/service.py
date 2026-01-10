@@ -5,11 +5,10 @@ from typing import List
 
 from fastapi import HTTPException, status, UploadFile
 from sqlalchemy import or_
-from sqlalchemy.orm.sync import update
 
 from app.utils.hash_password import hash_password, verify_password
 from app.services.redis_service import EmailTokenStorage, ChangePasswordTokenStorage
-from app.core.S3_client import s3_client
+from app.utils.S3_client import s3_client
 from app.core.exceptions import InvalidTokenException, TokenExpiredException, UserNotFoundException
 from app.users.models import UserModel
 from app.users.dao import UserDAO
@@ -66,7 +65,7 @@ class UserService:
     @classmethod
     async def send_verify_email(cls, user: UserModel):
         token = cls._create_uuid_token()
-        url = f"{settings.URL}/verify-email/{token}"
+        url = f"{settings.FRONTEND_URL}/verify-email/{token}"
         email_token_expires = timedelta(minutes=settings.EMAIL_TOKEN_EXPIRE_MINUTES)
 
         await EmailTokenStorage.save_token(
@@ -180,15 +179,21 @@ class UserService:
 
 
     @classmethod
-    async def send_reset_password_email(cls, username: str):
+    async def send_reset_password_email(cls, username_email: str):
         async with async_session_maker() as session:
-            user = await UserDAO.find_one_or_none(session, username=username)
+            user = await UserDAO.find_one_or_none(
+                session,
+                or_(
+                    UserModel.email==username_email,
+                    UserModel.username==username_email
+                )
+            )
 
             if user is None:
                 raise UserNotFoundException
 
             token = cls._create_uuid_token()
-            url = f"{settings.URL}/reset-password/{token}"
+            url = f"{settings.FRONTEND_URL}/reset-password/{token}"
             token_expires = timedelta(minutes=settings.EMAIL_TOKEN_EXPIRE_MINUTES)
 
             await ChangePasswordTokenStorage.save_token(

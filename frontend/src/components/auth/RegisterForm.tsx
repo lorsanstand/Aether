@@ -6,6 +6,7 @@ import { authService } from '../../services/authService';
 
 export default function RegisterForm() {
   const [email, setEmail] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -35,7 +36,7 @@ export default function RegisterForm() {
     setIsLoading(true);
 
     try {
-      await authService.register({ email, username, password });
+      await authService.register({ email, display_name: displayName, username, password });
       setSuccess('Регистрация успешна! Проверьте почту для подтверждения.');
       setTimeout(() => navigate('/auth'), 2000);
     } catch (err: any) {
@@ -58,6 +59,21 @@ export default function RegisterForm() {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="example@mail.com"
           autoFocus
+          className="w-full px-0 py-3 bg-transparent border-0 border-b-2 border-gray-200 font-inter text-text-main placeholder:text-text-muted/50 focus:outline-none focus:border-accent-terracotta transition-all duration-300"
+          required
+        />
+      </div>
+
+      <div>
+        <label htmlFor="displayName" className="block font-lora italic text-[15px] text-text-muted mb-2">
+          Имя для отображения
+        </label>
+        <input
+          id="displayName"
+          type="text"
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
+          placeholder="Как вас называть"
           className="w-full px-0 py-3 bg-transparent border-0 border-b-2 border-gray-200 font-inter text-text-main placeholder:text-text-muted/50 focus:outline-none focus:border-accent-terracotta transition-all duration-300"
           required
         />

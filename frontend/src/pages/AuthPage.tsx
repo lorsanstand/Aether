@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LoginForm from '../components/auth/LoginForm';
 import RegisterForm from '../components/auth/RegisterForm';
+import miniLogo from '../assets/mini-logo.png';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -25,8 +26,8 @@ export default function AuthPage() {
         <div className="bg-card-white rounded-[32px] shadow-soft px-10 py-12">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="auth-logo w-[100px] h-[100px] mx-auto mb-8 rounded-full bg-gradient-to-br from-accent-terracotta to-accent-olive flex items-center justify-center text-white text-4xl font-lora shadow-logo border-[3px] border-[#EBEBE6]">
-              A
+            <div className="auth-logo w-[100px] h-[100px] mx-auto mb-8 flex items-center justify-center">
+              <img src={miniLogo} alt="Aether Logo" className="w-full h-full object-contain" />
             </div>
             <div className="font-lora text-accent-olive text-lg tracking-[2px] mb-6">
               AETHER

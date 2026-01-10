@@ -7,7 +7,7 @@ from app.users.schemas import User, UserUpdate
 from app.users.service import UserService
 from app.auth.service import AuthService
 from app.users.models import UserModel
-from app.auth.dependencies import get_current_verified_user, get_current_superuser
+from app.auth.dependencies import get_current_verified_user, get_current_superuser, get_current_user
 
 router = APIRouter(prefix="/users", tags=["User"])
 
@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 
 
 @router.get("/me")
-async def get_current_user(user: UserModel = Depends(get_current_verified_user)) -> User:
+async def get_current_user(user: UserModel = Depends(get_current_user)) -> User:
     log.debug("Getting current user profile", extra={"user_id": str(user.id)})
     return user
 

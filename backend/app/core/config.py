@@ -9,10 +9,14 @@ class Settings(BaseSettings):
     MODE: Literal["DEV", "TEST", "PROD"]
     LOG_LEVEL: Literal["ERROR", "WARNING", "INFO", "DEBUG"]
 
-    HOST: str
-    PORT: int
+    BACKEND_HOST: str
+    BACKEND_PORT: int
     WORKERS: int
-    URL: str
+    FRONTEND_URL: str
+
+    FIRST_SUPER_USER_EMAIL: str
+    FIRST_SUPER_USER_PASS: str
+    FIRST_SUPER_USER_USERNAME: str
 
     CORS_ORIGINS: List[str] = ["http://localhost:5500", "http://127.0.0.1:5500", "http://localhost:8080", "http://127.0.0.1:8080", "null"]
     CORS_HEADERS: List[str] = ["*"]
@@ -62,7 +66,7 @@ class Settings(BaseSettings):
     def RABBITMQ_URL(self) -> str:
         return f"amqp://{self.RMQ_USER}:{self.RMQ_PASS}@{self.RMQ_HOST}:{self.RMQ_PORT}//"
 
-    model_config = SettingsConfigDict(env_file=".env", extra="allow")
+    model_config = SettingsConfigDict(env_file="../.env", extra="allow")
 
 
 settings: Settings = Settings()

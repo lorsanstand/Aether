@@ -98,9 +98,9 @@ async def change_password(
 
 @router.post("/password/reset")
 async def send_reset_password_email(
-        username: str
+        username_email: str
 ) -> Dict:
-    await UserService.send_reset_password_email(username)
+    await UserService.send_reset_password_email(username_email)
     return {"status": True, "message": "Successfully send email reset password"}
 
 @router.post("/password/reset/{token}")

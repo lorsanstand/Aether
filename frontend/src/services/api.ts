@@ -11,14 +11,17 @@ const apiClient = axios.create({
 });
 
 let isRefreshing = false;
-let failedQueue: any[] = [];
+let failedQueue: Array<{
+  resolve: (value?: any) => void;
+  reject: (reason?: any) => void;
+}> = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: any = null) => {
   failedQueue.forEach(prom => {
     if (error) {
       prom.reject(error);
     } else {
-      prom.resolve(token);
+      prom.resolve();
     }
   });
   
@@ -31,8 +34,14 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Если ошибка 401 и это не запрос на refresh и не повторный запрос
-    if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/refresh') {
+    // Если ошибка 401 и запрос ещё не повторялся
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      // Если это сам запрос на refresh - редирект на логин
+      if (originalRequest.url?.includes('/auth/refresh')) {
+        isRefreshing = false;
+        window.location.href = '/auth';
+        return Promise.reject(error);
+      }
       
       // Проверяем, находимся ли на публичной странице
       const publicPaths = ['/auth', '/verify-email', '/reset-password'];
@@ -43,8 +52,8 @@ apiClient.interceptors.response.use(
         return Promise.reject(error);
       }
 
+      // Если refresh уже в процессе, добавляем запрос в очередь
       if (isRefreshing) {
-        // Если refresh уже в процессе, добавляем запрос в очередь
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
@@ -63,14 +72,15 @@ apiClient.interceptors.response.use(
         // Пытаемся обновить токен
         await apiClient.post('/auth/refresh');
         
-        // Если успешно, обрабатываем очередь и повторяем оригинальный запрос
-        processQueue(null, 'refreshed');
+        // Если успешно, обрабатываем очередь
+        processQueue();
         isRefreshing = false;
         
+        // Повторяем оригинальный запрос с обновленным токеном
         return apiClient(originalRequest);
       } catch (refreshError) {
         // Если refresh не удался, очищаем очередь и редиректим на логин
-        processQueue(refreshError, null);
+        processQueue(refreshError);
         isRefreshing = false;
         
         window.location.href = '/auth';

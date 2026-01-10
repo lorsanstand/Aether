@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { authService } from '../services/authService';
+import miniLogo from '../assets/mini-logo.png';
 
 export default function ResetPasswordPage() {
   const { token } = useParams<{ token: string }>();
@@ -70,8 +71,8 @@ export default function ResetPasswordPage() {
       >
         <div className="bg-card-white rounded-[32px] shadow-soft p-8">
           <div className="text-center mb-8">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-accent-terracotta to-accent-olive flex items-center justify-center text-white text-3xl font-lora shadow-logo border-[3px] border-[#EBEBE6]">
-              A
+            <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+              <img src={miniLogo} alt="Aether Logo" className="w-full h-full object-contain" />
             </div>
             <div className="font-lora text-lg tracking-[2px] mb-6" style={{ color: '#6B705C' }}>
               AETHER
