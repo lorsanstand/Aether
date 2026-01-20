@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 import logging
 import uuid
+import asyncio
 
 from fastapi import FastAPI, APIRouter, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,6 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.redis import close_redis, init_redis
 from app.users.router import router as user_router
 from app.auth.router import router as auth_router
+from app.chats.router import router as chat_router
+from app.chats.service import ChatService
 from app.core.log_config import set_logging
 from app.core.config import settings
 
@@ -21,14 +24,19 @@ log = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     await init_redis()
     log.info("Redis connected")
+    task_send_message = asyncio.create_task(ChatService.message_listener())
+    log.info("Message sender started")
     yield
     await close_redis()
     log.info("Redis disconnected")
+    task_send_message.cancel()
+    log.info("Message sender stopped")
 
 
 api_router = APIRouter(prefix="/api/v1")
 api_router.include_router(user_router)
 api_router.include_router(auth_router)
+api_router.include_router(chat_router)
 
 @api_router.get("/health")
 async def test_health():

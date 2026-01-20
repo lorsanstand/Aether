@@ -24,6 +24,10 @@ async def get_users(offset: int, limit: int, user: UserModel = Depends(get_curre
     log.info("Getting users list", extra={"offset": offset, "limit": limit})
     return await UserService.get_users_list(offset=offset, limit=limit)
 
+@router.get("/{user_id}")
+async def get_user(user_id: int, user: UserModel = Depends(get_current_verified_user)):
+    return await UserService.get_user(user_id)
+
 @router.put("/me")
 async def update_current_user(update_user: UserUpdate, user: UserModel = Depends(get_current_verified_user)) -> User:
     return await UserService.update_user(user.id, update_user)

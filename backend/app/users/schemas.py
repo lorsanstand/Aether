@@ -40,12 +40,14 @@ class User(UserBase):
     is_verified: bool
     is_superuser: bool
 
+
 class UserCreateDB(UserBase):
     email: Optional[str] = None
     hashed_password: Optional[str] = None
     is_active: Optional[bool] = None
     is_verified: Optional[bool] = None
     is_superuser: Optional[bool] = None
+
 
 class UserUpdateDB(UserBase):
     email: Optional[str] = None
@@ -55,6 +57,7 @@ class UserUpdateDB(UserBase):
     is_active: Optional[bool] = None
     is_verified: Optional[bool] = None
     is_superuser: Optional[bool] = None
+
 
 class ChangePassword(BaseModel):
     old_password: str

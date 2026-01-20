@@ -1,6 +1,6 @@
 from typing import Dict, Optional
 
-from fastapi import HTTPException, Request, status
+from fastapi import HTTPException, Request, status, WebSocket
 from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from fastapi.security import OAuth2
 from fastapi.security.utils import get_authorization_scheme_param
@@ -20,8 +20,19 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
             password={"tokenUrl": tokenUrl, "scopes": scopes})
         super().__init__(flows=flows, scheme_name=scheme_name, auto_error=auto_error)
 
-    async def __call__(self, request: Request) -> Optional[str]:
-        authorization: str = request.cookies.get("access_token")
+
+    async def __call__(
+            self,
+            request: Request = None,
+            websocket: WebSocket = None
+    ) -> Optional[str]:
+        connection = request or websocket
+
+        if connection is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No connection found")
+
+        authorization: str = connection.cookies.get("access_token")
+        print(authorization)
 
         scheme, param = get_authorization_scheme_param(authorization)
         if not authorization or scheme.lower() != "bearer":

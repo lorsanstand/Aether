@@ -46,13 +46,15 @@ async def login(response: Response, credentials: OAuth2PasswordRequestForm = Dep
         'access_token',
         token.access_token,
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        httponly=True
+        httponly=True,
+        samesite='lax'
     )
     response.set_cookie(
         'refresh_token',
         str(token.refresh_token),
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 30 * 24 * 60,
-        httponly=True
+        httponly=True,
+        samesite='lax'
     )
     return token
 
