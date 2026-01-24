@@ -77,7 +77,7 @@ class MessageDAO(BaseDAO[MessageModel, MessageCreateDB, MessageUpdateDB]):
     model = MessageModel
 
     @classmethod
-    async def find_all_asc(
+    async def find_all_desc(
             cls,
             session: AsyncSession,
             offset: Optional[int],
@@ -85,7 +85,7 @@ class MessageDAO(BaseDAO[MessageModel, MessageCreateDB, MessageUpdateDB]):
             *filter,
             **filter_by
     ) -> List[MessageModel]:
-        stmt = select(MessageModel).filter(*filter).filter_by(**filter_by).order_by(MessageModel.created_at.asc())
+        stmt = select(MessageModel).filter(*filter).filter_by(**filter_by).order_by(MessageModel.created_at.desc())
 
         if offset is not None:
             stmt = stmt.offset(offset)

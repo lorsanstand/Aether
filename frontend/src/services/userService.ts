@@ -26,6 +26,11 @@ export const userService = {
     return response.data;
   },
 
+  getUserById: async (userId: number): Promise<User> => {
+    const response = await apiClient.get(`/users/${userId}`);
+    return response.data;
+  },
+
   updateProfile: async (data: UserUpdate): Promise<User> => {
     const response = await apiClient.put('/users/me', data);
     return response.data;

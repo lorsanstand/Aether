@@ -97,8 +97,8 @@ pip install -e .
 # Или используя poetry
 poetry install
 
-# Создайте .env файл
-cat > .env << EOF
+# Создайте .env.prod файл
+cat > .env.prod << EOF
 DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/aether
 REDIS_URL=redis://localhost:6379
 SECRET_KEY=your-secret-key-here
@@ -130,8 +130,8 @@ cd frontend
 # Установите зависимости
 npm install
 
-# Создайте .env файл
-echo "VITE_API_URL=http://localhost:8000" > .env
+# Создайте .env.prod файл
+echo "VITE_API_URL=http://localhost:8000" > .env.prod
 
 # Запустите dev сервер
 npm run dev
@@ -279,7 +279,7 @@ pytest tests/ -v
 docker build -t aether-backend .
 
 # Запуск контейнера
-docker run -p 8000:8000 --env-file .env aether-backend
+docker run -p 8000:8000 --env-file .env.prod aether-backend
 ```
 
 ### Frontend

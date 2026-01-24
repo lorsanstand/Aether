@@ -9,7 +9,7 @@ from sqlalchemy import and_
 from app.core.database import async_session_maker
 from app.chats.dao import ChatDAO, MessageDAO, ParticipantDAO
 from app.chats.models import ChatModel, MessageModel, ParticipantModel
-from app.chats.schemas import Chat, MessageCreate, MessageCreateDB, ChatCreateDB, ParticipantCreateDB, Message
+from app.chats.schemas import Chat, MessageCreate, MessageCreateDB, ChatCreateDB, ParticipantCreateDB, Message, MessageUpdateDB, MessageUpdate
 from app.users.models import UserModel
 from app.core.redis import get_redis
 
@@ -92,14 +92,7 @@ class ChatService:
                 )
             )
 
-            await cls._send_ws_message(members_ids, Message(
-                id=message_db.id,
-                sender_id=message_db.sender_id,
-                chat_id=message_db.chat_id,
-                content=message_db.content,
-                created_at=message_db.created_at,
-                updated_at=message_db.updated_at
-            ))
+            await cls._send_ws_message(members_ids, Message.model_validate(message_db))
 
             await ChatDAO.update(
                 session,
@@ -124,7 +117,7 @@ class ChatService:
                 log.warning("Access denied to chat", extra={"user_id": user.id, "chat_id": chat_id})
                 raise HTTPException(status.HTTP_403_FORBIDDEN, detail="Access denied")
 
-            messages = await MessageDAO.find_all_asc(
+            messages = await MessageDAO.find_all_desc(
                 session,
                 offset,
                 limit,
@@ -181,3 +174,44 @@ class ChatService:
             }
             await redis_client.publish("messenger_updates", json.dumps(payload))
             log.debug(f"Published message for user_id: {user_id}")
+
+
+    @classmethod
+    async def update_message(cls, user: UserModel, message_update: MessageUpdate) -> Message:
+        async with async_session_maker() as session:
+            message_exist = await MessageDAO.find_one_or_none(
+                session,
+                and_(
+                    MessageModel.id==message_update.id,
+                    MessageModel.sender_id==user.id
+                )
+            )
+
+            if message_exist is None:
+                log.warning("Message not found", extra={"user_id": user.id, "message_id": message_update.id})
+                raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Message not found")
+
+
+            message_update_db = await MessageDAO.update(
+                session,
+                MessageModel.id==message_update.id,
+                obj_in=MessageUpdateDB(
+                    content=message_update.content,
+                    is_edited=True
+                )
+            )
+
+            members = await ParticipantDAO.find_all(
+                session,
+                None,
+                None,
+                ParticipantModel.chat_id==message_exist.chat_id
+            )
+
+            member_ids = [member.user_id for member in members]
+
+            await cls._send_ws_message(member_ids, Message.model_validate(message_update_db))
+
+            await session.commit()
+            log.info("Message update successfully", extra={"user_id": user.id, "message_id": message_update.id})
+            return message_update_db

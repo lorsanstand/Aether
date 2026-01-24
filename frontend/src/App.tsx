@@ -67,6 +67,14 @@ function App() {
           }
         />
         <Route
+          path="/chat/:chatId"
+          element={
+            <PrivateRoute>
+              <ChatPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/profile"
           element={
             <PrivateRoute>

@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 import uuid
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class MessageCreate(BaseModel):
@@ -21,10 +21,13 @@ class MessageCreateDB(BaseModel):
     chat_id: Optional[uuid.UUID]
     content: Optional[str]
     is_read: Optional[bool] = False
+    is_edited: Optional[bool] = False
 
 
 class MessageUpdateDB(BaseModel):
     content: Optional[str]
+    is_edited: Optional[bool] = False
+
 
 
 class Message(BaseModel):
@@ -32,8 +35,11 @@ class Message(BaseModel):
     sender_id: int
     chat_id: uuid.UUID
     content: str
+    is_edited: Optional[bool] = False
     created_at: datetime
     updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ChatBase(BaseModel):

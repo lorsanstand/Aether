@@ -56,7 +56,7 @@ services:
     networks:
       - aether
     env_file:
-      - .env
+      - .env.prod
 
   celery:
     build:
@@ -70,7 +70,7 @@ services:
     networks:
       - aether
     env_file:
-      - .env
+      - .env.prod
     restart: unless-stopped
 
   backend:
@@ -95,7 +95,7 @@ services:
     networks:
       - aether
     env_file:
-      - .env
+      - .env.prod
     restart: unless-stopped
 
   frontend:

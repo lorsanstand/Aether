@@ -1,7 +1,7 @@
 import uuid
 
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import ForeignKey, UUID, UniqueConstraint
+from sqlalchemy import ForeignKey, UUID, UniqueConstraint, text
 
 from app.core.database import Base
 
@@ -14,6 +14,7 @@ class MessageModel(Base):
     chat_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("chat.id", ondelete="CASCADE"), index=True)
     content: Mapped[str] = mapped_column()
     is_read: Mapped[bool] = mapped_column(default=False)
+    is_edited: Mapped[bool] = mapped_column(default=False, server_default=text("false"))
 
 
 class ChatModel(Base):

@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from app.chats.service import ChatService
 from app.auth.dependencies import get_current_verified_user
 from app.users.models import UserModel
-from app.chats.schemas import Chat, MessageCreate, Message
+from app.chats.schemas import Chat, MessageCreate, Message, MessageUpdate
 
 router = APIRouter(prefix="/chats", tags=["chats"])
 
@@ -19,7 +19,7 @@ async def get_chats(
     return await ChatService.get_chats(user, offset, limit)
 
 @router.get("/{chat_id}")
-async def get_chat(
+async def get_messages(
         chat_id: uuid.UUID,
         offset: int = 0,
         limit: int = 10,
@@ -30,6 +30,10 @@ async def get_chat(
 @router.post("/message")
 async def send_message(message: MessageCreate, user: UserModel = Depends(get_current_verified_user)) -> Message:
     return await ChatService.send_message(user, message)
+
+@router.put("/message")
+async def edit_message(message_update: MessageUpdate, user: UserModel = Depends(get_current_verified_user)) -> Message:
+    return await ChatService.update_message(user, message_update)
 
 
 @router.websocket("/ws")
