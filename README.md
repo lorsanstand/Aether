@@ -2,7 +2,7 @@
 
 # 🌌 Aether
 
-<img src="assets/mini-logo.png" alt="Aether logo" width="150" style="border-radius: 15px;">
+<img src="assets/logo.png" alt="Aether logo" width="150" style="border-radius: 15px;">
 
 **Современная full-stack платформа для чатов с мощным backend и элегантным frontend**
 
@@ -291,16 +291,6 @@ npm run build
 # Папка dist/ готова к деплою на любой статический хостинг
 ```
 
-## 🤝 Вклад в проект
-
-Мы приветствуем вклад в развитие проекта! Пожалуйста:
-
-1. Сделайте Fork репозитория
-2. Создайте ветку для новой функции (`git checkout -b feature/AmazingFeature`)
-3. Зафиксируйте изменения (`git commit -m 'Add some AmazingFeature'`)
-4. Отправьте в ветку (`git push origin feature/AmazingFeature`)
-5. Откройте Pull Request
-
 ## 📝 Лицензия
 
 Этот проект распространяется под лицензией Apache 2.0. Подробности в файле [LICENSE](LICENSE).
@@ -315,7 +305,6 @@ npm run build
 
 - [FastAPI](https://fastapi.tiangolo.com/) за отличный фреймворк
 - [React](https://react.dev/) команде за мощную библиотеку
-- Всем контрибьюторам open-source проектов, которые используются в Aether
 
 ---
 

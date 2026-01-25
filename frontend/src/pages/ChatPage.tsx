@@ -33,6 +33,7 @@ export default function ChatPage() {
 
   // User profile modal state
   const [viewingUser, setViewingUser] = useState<UserType | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [userProfileLoading, setUserProfileLoading] = useState(false);
 
   // Message input state
@@ -942,7 +943,7 @@ export default function ChatPage() {
                   initial={{ opacity: 0, scale: 0.8, y: 20 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.8, y: 20 }}
-                  onClick={scrollToBottom}
+                  onClick={() => scrollToBottom(true)}
                   className="absolute bottom-24 right-8 p-3 rounded-full shadow-xl hover:scale-110 transition-transform"
                   style={{ 
                     backgroundColor: 'var(--accent-primary)', 
