@@ -12,12 +12,12 @@ from app.chats.models import ChatModel, MessageModel, ParticipantModel
 from app.chats.schemas import Chat, MessageCreate, MessageCreateDB, ChatCreateDB, ParticipantCreateDB, Message, MessageUpdateDB, MessageUpdate
 from app.users.models import UserModel
 from app.core.redis import get_redis
+from app.utils.connect_manager import manager
 
 log = logging.getLogger(__name__)
 
 
 class ChatService:
-    active_connections: Dict[str, WebSocket] = {}
 
     @classmethod
     async def get_chats(cls, user: UserModel, offset: int, limit: int) -> List[Chat]:
@@ -130,38 +130,15 @@ class ChatService:
 
     @classmethod
     async def save_websocket(cls, user: UserModel, ws: WebSocket):
-        cls.active_connections[str(user.id)] = ws
-        log.info("WebSocket connection saved", extra={"user_id": user.id, "active_connections": len(cls.active_connections) + 1})
+        manager.add_connection(user_id=str(user.id), ws=ws)
+        log.info("WebSocket connection saved", extra={"user_id": user.id, "active_connections": manager.count_connections + 1})
 
 
 
     @classmethod
     async def delete_websocket(cls, user: UserModel):
-        cls.active_connections.pop(str(user.id))
-        log.info("WebSocket connection deleted", extra={"user_id": user.id, "active_connections": len(cls.active_connections) - 1})
-
-
-    @classmethod
-    async def message_listener(cls):
-        redis_client = await get_redis()
-
-        pubsub = redis_client.pubsub()
-
-        await pubsub.subscribe("messenger_updates")
-
-        async for message in pubsub.listen():
-            log.debug(f"Received message from Redis: {message}")
-            if message["type"] == "message":
-                payload = json.loads(message["data"])
-                user_id = payload["user_id"]
-
-                if user_id in cls.active_connections:
-                    ws = cls.active_connections[user_id]
-                    await ws.send_json(payload["message"])
-                    log.info(f"Message sent to user {user_id} via WebSocket")
-                else:
-                    log.debug(f"User {user_id} not connected")
-
+        manager.delete_connection(user_id=str(user.id))
+        log.info("WebSocket connection deleted", extra={"user_id": user.id, "active_connections": manager.count_connections - 1})
 
 
     @classmethod
@@ -170,7 +147,7 @@ class ChatService:
         for user_id in user_ids:
             payload = {
                 "user_id": str(user_id),
-                "message": message.model_dump(mode='json')
+                "data": message.model_dump(mode='json')
             }
             await redis_client.publish("messenger_updates", json.dumps(payload))
             log.debug(f"Published message for user_id: {user_id}")

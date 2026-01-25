@@ -12,9 +12,9 @@ from app.core.redis import close_redis, init_redis
 from app.users.router import router as user_router
 from app.auth.router import router as auth_router
 from app.chats.router import router as chat_router
-from app.chats.service import ChatService
 from app.core.log_config import set_logging
 from app.core.config import settings
+from app.services.messenger_service import PubSubMessenger
 
 set_logging()
 log = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     await init_redis()
     log.info("Redis connected")
-    task_send_message = asyncio.create_task(ChatService.message_listener())
+    task_send_message = asyncio.create_task(PubSubMessenger.subscribe_to_channels())
     log.info("Message sender started")
     yield
     await close_redis()

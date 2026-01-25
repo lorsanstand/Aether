@@ -2,7 +2,7 @@
 
 # 🌌 Aether
 
-<img src="assets/logo.png" alt="Aether logo" width="150" style="border-radius: 15px;">
+<img src="assets/mini-logo.png" alt="Aether logo" width="150" style="border-radius: 15px;">
 
 **Современная full-stack платформа для чатов с мощным backend и элегантным frontend**
 

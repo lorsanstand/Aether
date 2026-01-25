@@ -1,0 +1,33 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Build
+        run: | 
+          echo "Building to server"
+          docker compose build
+
+      - name: Deploying
+        run: |
+          echo "Deploying to server"
+          docker compose up -d
+
+      - name: Cleanup old images
+        run: |
+          docker image prune -f
+          

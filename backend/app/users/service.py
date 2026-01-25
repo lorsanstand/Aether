@@ -7,7 +7,7 @@ from fastapi import HTTPException, status, UploadFile
 from sqlalchemy import or_
 
 from app.utils.hash_password import hash_password, verify_password
-from app.services.redis_service import EmailTokenStorage, ChangePasswordTokenStorage
+from app.services.storage_service import EmailTokenStorage, ChangePasswordTokenStorage
 from app.utils.S3_client import s3_client
 from app.core.exceptions import InvalidTokenException, TokenExpiredException, UserNotFoundException
 from app.users.models import UserModel

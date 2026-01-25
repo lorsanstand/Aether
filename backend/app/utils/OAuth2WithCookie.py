@@ -32,8 +32,6 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No connection found")
 
         authorization: str = connection.cookies.get("access_token")
-        print(authorization)
-
         scheme, param = get_authorization_scheme_param(authorization)
         if not authorization or scheme.lower() != "bearer":
             if self.auto_error:

@@ -7,7 +7,7 @@ from jose import jwt
 from sqlalchemy import or_
 
 from app.utils.hash_password import verify_password
-from app.services.redis_service import RefreshTokenStorage
+from app.services.storage_service import RefreshTokenStorage
 from app.core.exceptions import InvalidTokenException
 from app.users.models import UserModel
 from app.users.dao import UserDAO
