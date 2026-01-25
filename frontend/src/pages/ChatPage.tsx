@@ -33,8 +33,7 @@ export default function ChatPage() {
 
   // User profile modal state
   const [viewingUser, setViewingUser] = useState<UserType | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [userProfileLoading, setUserProfileLoading] = useState(false);
+  const [_userProfileLoading, setUserProfileLoading] = useState(false);
 
   // Message input state
   const [messageText, setMessageText] = useState('');
