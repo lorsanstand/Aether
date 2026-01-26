@@ -152,16 +152,16 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-4xl mx-auto p-4 md:p-6">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-4 md:mb-6 flex items-center justify-between">
           <button
             onClick={() => navigate('/chat')}
             className="flex items-center gap-2 font-inter font-medium hover:opacity-70 transition"
             style={{ color: 'var(--accent-primary)' }}
           >
             <ArrowLeft size={20} />
-            Назад к чатам
+            <span className="hidden sm:inline">Назад к чатам</span>
           </button>
           <div className="flex items-center gap-3">
             <button
@@ -192,14 +192,14 @@ export default function ProfilePage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-3xl shadow-soft p-8"
+          className="rounded-2xl md:rounded-3xl shadow-soft p-4 md:p-8"
           style={{ backgroundColor: 'var(--bg-card)' }}
         >
           {/* Avatar Section */}
-          <div className="flex flex-col items-center mb-8">
+          <div className="flex flex-col items-center mb-6 md:mb-8">
             <div className="relative">
               <div
-                className="w-32 h-32 flex items-center justify-center overflow-hidden"
+                className="w-24 h-24 md:w-32 md:h-32 flex items-center justify-center overflow-hidden"
                 style={{
                   backgroundImage: user.avatar_url ? `url(${user.avatar_url})` : undefined,
                   backgroundSize: 'cover',
@@ -214,10 +214,10 @@ export default function ProfilePage() {
               
               <label
                 htmlFor="avatar-upload"
-                className="absolute bottom-0 right-0 p-2 rounded-full cursor-pointer hover:opacity-80 transition"
+                className="absolute bottom-0 right-0 p-1.5 md:p-2 rounded-full cursor-pointer hover:opacity-80 transition"
                 style={{ backgroundColor: 'var(--accent-primary)' }}
               >
-                <Camera size={20} className="text-white" />
+                <Camera size={18} className="text-white md:w-5 md:h-5" />
                 <input
                   id="avatar-upload"
                   type="file"
@@ -232,16 +232,16 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={handleDeleteAvatar}
-                  className="absolute bottom-0 left-0 p-2 rounded-full hover:opacity-80 transition"
+                  className="absolute bottom-0 left-0 p-1.5 md:p-2 rounded-full hover:opacity-80 transition"
                   style={{ backgroundColor: 'var(--error-color)' }}
                   disabled={isLoading}
                 >
-                  <Trash2 size={20} className="text-white" />
+                  <Trash2 size={18} className="text-white md:w-5 md:h-5" />
                 </button>
               )}
             </div>
 
-            <h1 className="mt-4 text-2xl font-lora font-semibold" style={{ color: 'var(--text-primary)' }}>
+            <h1 className="mt-4 text-xl md:text-2xl font-lora font-semibold" style={{ color: 'var(--text-primary)' }}>
               {user.username}
             </h1>
             <p className="font-inter text-sm" style={{ color: 'var(--text-secondary)' }}>

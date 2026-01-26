@@ -7,6 +7,7 @@ import asyncio
 
 from fastapi import FastAPI, APIRouter, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.core.redis import close_redis, init_redis
 from app.users.router import router as user_router
@@ -51,7 +52,6 @@ async def get_file(filename: str):
     if filename.endswith(".png"):
         content_type = "image/png"
 
-    # Возвращаем файл напрямую из памяти
     return Response(
         content=file_data,
         media_type=content_type
@@ -60,6 +60,12 @@ app = FastAPI(
     title=settings.COMPANY_NAME,
     description="## Backend messenger aether",
     lifespan=lifespan
+)
+
+Instrumentator().instrument(app).expose(
+    app,
+    endpoint="/api/v1/p2qNT2Cz/SGQmQ==",
+    include_in_schema=False
 )
 app.include_router(api_router)
 
