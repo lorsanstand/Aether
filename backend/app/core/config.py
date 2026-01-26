@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     BACKEND_PORT: int
     WORKERS: int
     FRONTEND_URL: str
+    BACKEND_URL: str
 
     FIRST_SUPER_USER_EMAIL: str
     FIRST_SUPER_USER_PASS: str

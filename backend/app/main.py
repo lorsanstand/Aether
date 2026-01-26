@@ -15,6 +15,7 @@ from app.chats.router import router as chat_router
 from app.core.log_config import set_logging
 from app.core.config import settings
 from app.services.messenger_service import PubSubMessenger
+from app.utils.S3_client import s3_client
 
 set_logging()
 log = logging.getLogger(__name__)
@@ -42,6 +43,19 @@ api_router.include_router(chat_router)
 async def test_health():
     return {"status": True}
 
+@api_router.get("/files/{filename}")
+async def get_file(filename: str):
+    file_data = await s3_client.download_file(filename)
+
+    content_type = "image/jpeg"
+    if filename.endswith(".png"):
+        content_type = "image/png"
+
+    # Возвращаем файл напрямую из памяти
+    return Response(
+        content=file_data,
+        media_type=content_type
+    )
 app = FastAPI(
     title=settings.COMPANY_NAME,
     description="## Backend messenger aether",
