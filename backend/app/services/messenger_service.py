@@ -40,12 +40,16 @@ class PubSubMessenger:
 
             handler = cls.get_handlers().get(message['channel'])
             if handler:
-                await handler(payload["data"], ws)
+                await handler(payload, ws)
 
 
     @classmethod
-    async def handle_message(cls, message, ws: WebSocket):
-        await ws.send_json(message)
+    async def handle_message(cls, payload, ws: WebSocket):
+        log.debug("Message start sending type: %s", payload["type"])
+        if payload["type"] == "send":
+            await ws.send_json(payload["data"])
+        elif payload["type"] == "del":
+            await ws.send_json({"type": "del", "message_id": payload["data"]})
         log.info(f"Message sent to user via WebSocket")
 
 

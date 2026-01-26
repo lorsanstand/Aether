@@ -147,7 +147,21 @@ class ChatService:
         for user_id in user_ids:
             payload = {
                 "user_id": str(user_id),
+                "type": "send",
                 "data": message.model_dump(mode='json')
+            }
+            await redis_client.publish("messenger_updates", json.dumps(payload))
+            log.debug(f"Published message for user_id: {user_id}")
+
+
+    @classmethod
+    async def _delete_ws_message(cls, user_ids: List[int], message_id: uuid.UUID):
+        redis_client = await get_redis()
+        for user_id in user_ids:
+            payload = {
+                "user_id": str(user_id),
+                "type": "del",
+                "data": str(message_id)
             }
             await redis_client.publish("messenger_updates", json.dumps(payload))
             log.debug(f"Published message for user_id: {user_id}")
@@ -158,15 +172,16 @@ class ChatService:
         async with async_session_maker() as session:
             message_exist = await MessageDAO.find_one_or_none(
                 session,
-                and_(
-                    MessageModel.id==message_update.id,
-                    MessageModel.sender_id==user.id
-                )
+            MessageModel.id==message_update.id
             )
 
             if message_exist is None:
                 log.warning("Message not found", extra={"user_id": user.id, "message_id": message_update.id})
                 raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Message not found")
+            if message_exist.sender_id != user.id:
+                log.warning("User does not have access to this message",
+                            extra={"user_id": user.id, "message_id": message_update.id})
+                raise HTTPException(status.HTTP_403_FORBIDDEN, detail="Message not allowed")
 
 
             message_update_db = await MessageDAO.update(
@@ -192,3 +207,35 @@ class ChatService:
             await session.commit()
             log.info("Message update successfully", extra={"user_id": user.id, "message_id": message_update.id})
             return message_update_db
+
+
+    @classmethod
+    async def delete_message(cls, user: UserModel, message_id: uuid.UUID):
+        async with async_session_maker() as session:
+            message_exist = await MessageDAO.find_one_or_none(
+                session,
+                MessageModel.id==message_id,
+            )
+
+            if message_exist is None:
+                log.warning("Message not found", extra={"user_id": user.id, "message_id": message_id})
+                raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Message not found")
+            if message_exist.sender_id != user.id:
+                log.warning("User does not have access to this message",
+                            extra={"user_id": user.id, "message_id": message_id})
+                raise HTTPException(status.HTTP_403_FORBIDDEN, detail="Message not allowed")
+
+            members = await ParticipantDAO.find_all(
+                session,
+                None,
+                None,
+                ParticipantModel.chat_id==message_exist.chat_id
+            )
+            member_ids = [member.user_id for member in members]
+
+            await MessageDAO.delete(session, MessageModel.id==message_id)
+
+            await cls._delete_ws_message(member_ids, message_id)
+
+            await session.commit()
+            log.info("Message delete successfully", extra={"user_id": user.id, "message_id": message_exist.id})
