@@ -454,10 +454,12 @@ export default function ChatPage() {
   return (
     <div className="min-h-screen h-screen flex" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Sidebar */}
-      <div className="w-80 flex flex-col shadow-soft" style={{ backgroundColor: 'var(--bg-card)' }}>
+      <div className={`w-full md:w-80 flex flex-col shadow-soft ${
+        selectedChat ? 'hidden md:flex' : 'flex'
+      }`} style={{ backgroundColor: 'var(--bg-card)' }}>
         {/* Header */}
-        <div className="p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
-          <h1 className="text-3xl font-lora font-semibold text-center tracking-wider" style={{ color: 'var(--accent-primary)' }}>
+        <div className="p-4 md:p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
+          <h1 className="text-2xl md:text-3xl font-lora font-semibold text-center tracking-wider" style={{ color: 'var(--accent-primary)' }}>
             AETHER
           </h1>
         </div>
@@ -470,11 +472,11 @@ export default function ChatPage() {
         )}
 
         {/* User Profile Section */}
-        <div className="p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
-          <div className="flex items-center gap-4">
+        <div className="p-4 md:p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
+          <div className="flex items-center gap-3 md:gap-4">
             {/* Avatar */}
             <div
-              className="w-14 h-14 flex items-center justify-center flex-shrink-0 cursor-pointer hover:opacity-90 transition"
+              className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center flex-shrink-0 cursor-pointer hover:opacity-90 transition"
               style={{
                 backgroundImage: user?.avatar_url ? `url(${user.avatar_url})` : undefined,
                 backgroundSize: 'cover',
@@ -654,11 +656,13 @@ export default function ChatPage() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col relative">
+      <div className={`flex-1 flex flex-col relative ${
+        selectedChat ? 'flex' : 'hidden md:flex'
+      }`}>
         {selectedChat ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 border-b flex items-center gap-4" style={{ 
+            <div className="p-3 md:p-4 border-b flex items-center gap-2 md:gap-4" style={{ 
               backgroundColor: 'var(--bg-card)', 
               borderColor: 'var(--border-color)' 
             }}>
@@ -974,7 +978,7 @@ export default function ChatPage() {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.8, y: 20 }}
                   onClick={() => scrollToBottom(true)}
-                  className="absolute bottom-24 right-8 p-3 rounded-full shadow-xl hover:scale-110 transition-transform"
+                  className="absolute bottom-20 md:bottom-24 right-4 md:right-8 p-2.5 md:p-3 rounded-full shadow-xl hover:scale-110 transition-transform"
                   style={{ 
                     backgroundColor: 'var(--accent-primary)', 
                     color: 'white',
@@ -1002,11 +1006,11 @@ export default function ChatPage() {
             </AnimatePresence>
 
             {/* Message Input */}
-            <div className="p-4 border-t" style={{ 
+            <div className="p-3 md:p-4 border-t" style={{ 
               backgroundColor: 'var(--bg-card)', 
               borderColor: 'var(--border-color)' 
             }}>
-              <div className="flex gap-3 max-w-4xl mx-auto">
+              <div className="flex gap-2 md:gap-3 max-w-4xl mx-auto">
                 <input
                   ref={messageInputRef}
                   type="text"
@@ -1015,7 +1019,7 @@ export default function ChatPage() {
                   onKeyPress={handleKeyPress}
                   placeholder="Написать сообщение..."
                   disabled={sendingMessage}
-                  className="flex-1 px-4 py-3 rounded-2xl font-inter text-sm outline-none transition"
+                  className="flex-1 px-3 md:px-4 py-2.5 md:py-3 rounded-2xl font-inter text-sm outline-none transition"
                   style={{
                     backgroundColor: 'var(--bg-input)',
                     color: 'var(--text-primary)',
@@ -1028,7 +1032,7 @@ export default function ChatPage() {
                   whileTap={{ scale: 0.95 }}
                   onClick={handleSendMessage}
                   disabled={!messageText.trim() || sendingMessage}
-                  className="px-6 py-3 rounded-2xl font-inter font-semibold flex items-center gap-2 transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 md:px-6 py-2.5 md:py-3 rounded-2xl font-inter font-semibold flex items-center gap-2 transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ backgroundColor: 'var(--accent-primary)', color: 'white' }}
                 >
                   {sendingMessage ? (

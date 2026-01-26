@@ -32,7 +32,11 @@ export const userService = {
   },
 
   updateProfile: async (data: UserUpdate): Promise<User> => {
-    const response = await apiClient.put('/users/me', data);
+    // Filter out empty strings to avoid validation errors
+    const filteredData = Object.fromEntries(
+      Object.entries(data).filter(([_, value]) => value !== '')
+    );
+    const response = await apiClient.put('/users/me', filteredData);
     return response.data;
   },
 
