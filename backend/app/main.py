@@ -8,6 +8,7 @@ import asyncio
 from fastapi import FastAPI, APIRouter, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
+import logging_loki as loki
 
 from app.core.redis import close_redis, init_redis
 from app.users.router import router as user_router
@@ -18,8 +19,15 @@ from app.core.config import settings
 from app.services.messenger_service import PubSubMessenger
 from app.utils.S3_client import s3_client
 
+handler = loki.LokiHandler(
+    url="http://localhost:3100/loki/api/v1/push",
+    tags={"application": "fastapi-app"},
+    version="1",
+)
+
 set_logging()
 log = logging.getLogger(__name__)
+log.addHandler(handler)
 
 
 @asynccontextmanager
