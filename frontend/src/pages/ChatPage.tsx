@@ -2,7 +2,7 @@ import { useAuthStore } from '../store/authStore';
 import { useChatStore } from '../store/chatStore';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquarePlus, Settings, User, Send, ArrowLeft, X, Pencil, Check, ArrowDown } from 'lucide-react';
+import { MessageSquarePlus, Settings, User, Send, ArrowLeft, X, Pencil, Check, ArrowDown, Trash2 } from 'lucide-react';
 import miniLogo from '../assets/mini-logo.png';
 import VerificationBanner from '../components/common/VerificationBanner';
 import { useEffect, useState, useRef } from 'react';
@@ -120,8 +120,17 @@ export default function ChatPage() {
       
       ws.onmessage = (event) => {
         try {
-          const message: Message = JSON.parse(event.data);
-          console.log('Received message via WebSocket:', message);
+          const data = JSON.parse(event.data);
+          console.log('Received WebSocket data:', data);
+          
+          // Handle message deletion
+          if (data.type === 'del' && data.message_id) {
+            setMessages(prev => prev.filter(m => m.id !== data.message_id));
+            return;
+          }
+          
+          // Handle regular message (add/update)
+          const message: Message = data;
           
           // Add or update message in current chat if it belongs to it
           if (selectedChat && message.chat_id === selectedChat.chat_id) {
@@ -427,6 +436,18 @@ export default function ChatPage() {
       handleSaveEdit(messageId);
     } else if (e.key === 'Escape') {
       handleCancelEdit();
+    }
+  };
+  
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!confirm('Удалить сообщение?')) return;
+    
+    try {
+      await chatService.deleteMessage(messageId);
+      // Message will be removed via WebSocket
+    } catch (err: any) {
+      console.error('Failed to delete message:', err);
+      alert('Не удалось удалить сообщение');
     }
   };
 
@@ -817,16 +838,26 @@ export default function ChatPage() {
                               border: isMyMessage ? 'none' : '1px solid var(--border-color)'
                             }}
                           >
-                            {/* Edit button - показываем только для своих сообщений */}
+                            {/* Edit and Delete buttons - показываем только для своих сообщений */}
                             {isMyMessage && editingMessageId !== message.id && (
-                              <button
-                                onClick={() => handleStartEdit(message)}
-                                className="absolute -top-2 -right-2 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                                style={{ backgroundColor: 'var(--bg-card)', color: 'var(--accent-primary)' }}
-                                title="Редактировать"
-                              >
-                                <Pencil size={14} />
-                              </button>
+                              <>
+                                <button
+                                  onClick={() => handleStartEdit(message)}
+                                  className="absolute -top-2 -right-10 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                                  style={{ backgroundColor: 'var(--bg-card)', color: 'var(--accent-primary)' }}
+                                  title="Редактировать"
+                                >
+                                  <Pencil size={14} />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteMessage(message.id)}
+                                  className="absolute -top-2 -right-2 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                                  style={{ backgroundColor: 'var(--bg-card)', color: '#DC2626' }}
+                                  title="Удалить"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </>
                             )}
                             
                             {/* Message content or edit input */}

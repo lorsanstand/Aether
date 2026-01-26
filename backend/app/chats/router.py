@@ -35,6 +35,10 @@ async def send_message(message: MessageCreate, user: UserModel = Depends(get_cur
 async def edit_message(message_update: MessageUpdate, user: UserModel = Depends(get_current_verified_user)) -> Message:
     return await ChatService.update_message(user, message_update)
 
+@router.delete("/message")
+async def delete_message(message_id: uuid.UUID, user: UserModel = Depends(get_current_verified_user)):
+    await ChatService.delete_message(user, message_id)
+    return {"status": True, "message": "Message successfully deleted"}
 
 @router.websocket("/ws")
 async def websocket_endpoint(ws: WebSocket, user: UserModel = Depends(get_current_verified_user)):

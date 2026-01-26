@@ -52,6 +52,12 @@ const chatService = {
   async updateMessage(data: MessageUpdate): Promise<Message> {
     const response = await apiClient.put('/chats/message', data);
     return response.data;
+  },
+
+  async deleteMessage(messageId: string): Promise<void> {
+    await apiClient.delete('/chats/message', {
+      params: { message_id: messageId }
+    });
   }
 };
 

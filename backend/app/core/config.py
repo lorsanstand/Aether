@@ -66,7 +66,7 @@ class Settings(BaseSettings):
     def RABBITMQ_URL(self) -> str:
         return f"amqp://{self.RMQ_USER}:{self.RMQ_PASS}@{self.RMQ_HOST}:{self.RMQ_PORT}//"
 
-    model_config = SettingsConfigDict(env_file="../.env.prod", extra="allow")
+    model_config = SettingsConfigDict(env_file="../.env", extra="allow")
 
 
 settings: Settings = Settings()
