@@ -234,7 +234,7 @@ class UserService:
     @classmethod
     async def upload_avatar(cls, user: UserModel, avatar: UploadFile) -> User:
         async with async_session_maker() as session:
-            allowed_types = ["image/jpeg", "image/png", "image/gif"]
+            allowed_types = ["image/jpeg", "image/png"]
 
             if not avatar.content_type in allowed_types:
                 log.warning("Using not allowed type photo", extra={"user_id": user.id})

@@ -59,7 +59,7 @@ class S3Client:
             log.error(f"Unexpected S3 error: {str(e)}", extra={"object_name": object_name})
             raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, detail="Unexpected S3 error")
 
-        return f"{self.endpoint_url}/{self.bucket_name}/{object_name}"
+        return f"{settings.BACKEND_URL}/files/{object_name}"
 
 
     async def download_file(
