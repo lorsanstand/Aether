@@ -281,3 +281,12 @@ class UserService:
             )
             log.info("Avatar successfully deleted", extra={"user_id": user.id})
             await session.commit()
+
+
+    @classmethod
+    async def search_users(cls, username: str, offset: int = 0, limit: int = 30):
+        async with async_session_maker() as session:
+
+            users = await UserDAO.find_all(session, offset, limit, UserModel.username.ilike(f"%{username}%"))
+            log.debug("Search users")
+            return users

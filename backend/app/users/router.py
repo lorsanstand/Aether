@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 import logging
 
 from fastapi import APIRouter, Response, Depends, UploadFile, File
@@ -23,6 +23,15 @@ async def get_current_user(user: UserModel = Depends(get_current_user)) -> User:
 async def get_users(offset: int, limit: int, user: UserModel = Depends(get_current_superuser)):
     log.info("Getting users list", extra={"offset": offset, "limit": limit})
     return await UserService.get_users_list(offset=offset, limit=limit)
+
+@router.get("/search")
+async def search_users(
+        username: str,
+        offset: int = 0,
+        limit: int = 30,
+        user: UserModel = Depends(get_current_verified_user)
+) -> List[User]:
+    return await UserService.search_users(username, offset, limit)
 
 @router.get("/{user_id}")
 async def get_user(user_id: int, user: UserModel = Depends(get_current_verified_user)):
