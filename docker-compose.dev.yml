@@ -33,7 +33,6 @@ services:
 
   redis-insight:
     image: redis/redisinsight:latest
-    container_name: redis_insight
     ports:
       - "5540:5540"
     networks:
@@ -50,8 +49,6 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.8-management
-    hostname: rabbitmq
-    container_name: rabbitmq
     ports:
       - "${RMQ_PORT}:5672"
       - "15672:15672"
@@ -68,6 +65,7 @@ volumes:
   pgdata:
   redis_data:
   rabbitmq-data:
+  esdata:
 
 networks:
   aether-dev:

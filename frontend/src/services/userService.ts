@@ -56,6 +56,13 @@ export const userService = {
     await apiClient.delete('/users/me/avatar');
   },
 
+  searchUsers: async (username: string, offset: number = 0, limit: number = 30): Promise<User[]> => {
+    const response = await apiClient.get('/users/search', {
+      params: { username, offset, limit }
+    });
+    return response.data;
+  },
+
   deleteAccount: async (): Promise<void> => {
     await apiClient.delete('/users/me');
   },

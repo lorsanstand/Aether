@@ -48,6 +48,13 @@ export default function ChatPage() {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const isAtBottomRef = useRef(true); // Track if user is at bottom
 
+  // New chat / user search state
+  const [showNewChatModal, setShowNewChatModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<UserType[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   // Ref for auto-scroll to bottom
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -151,13 +158,16 @@ export default function ChatPage() {
             
             // Handle scroll and unread counter for new messages
             if (isNewMessage) {
+              // Check if this is our own message
+              const isOwnMessage = message.sender_id === user?.id;
+              
               // Use ref to check current position synchronously
               setTimeout(() => {
-                if (isAtBottomRef.current) {
-                  // Auto-scroll if at bottom
+                if (isOwnMessage || isAtBottomRef.current) {
+                  // Auto-scroll if it's our message or if at bottom
                   scrollToBottom(true);
                 } else {
-                  // Increment unread counter if not at bottom
+                  // Increment unread counter if not at bottom and not our message
                   setUnreadCount(prev => prev + 1);
                   setShowScrollButton(true);
                 }
@@ -344,25 +354,17 @@ export default function ChatPage() {
       setSendingMessage(true);
       
       // Send message with chat_id (если чат существует) или recipient_id (если новый чат)
-      const newMessage = await chatService.sendMessage({
+      await chatService.sendMessage({
         content: messageText.trim(),
         chat_id: selectedChat?.chat_id,
         recipient_id: selectedChat?.user_id,
       });
 
-      // Add message to list
-      setMessages(prev => [...prev, newMessage]);
-      
-      // Scroll to bottom after sending
-      setTimeout(() => {
-        scrollToBottom(true);
-      }, 100);
+      // Don't add message locally - it will come via WebSocket
+      // This prevents duplication
       
       // Clear input
       setMessageText('');
-      
-      // Keep input focused
-      messageInputRef.current?.focus();
 
       // Update chat list with new last message
       const updatedChats = chats.map(chat => 
@@ -382,6 +384,10 @@ export default function ChatPage() {
       alert('Не удалось отправить сообщение');
     } finally {
       setSendingMessage(false);
+      // Keep input focused after everything is done
+      setTimeout(() => {
+        messageInputRef.current?.focus();
+      }, 0);
     }
   };
 
@@ -450,6 +456,69 @@ export default function ChatPage() {
       alert('Не удалось удалить сообщение');
     }
   };
+
+  // User search handlers
+  const handleSearchUsers = async (query: string) => {
+    setSearchQuery(query);
+    
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    if (query.trim().length < 2) {
+      setSearchResults([]);
+      setSearchLoading(false);
+      return;
+    }
+    
+    setSearchLoading(true);
+    
+    // Debounce search
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const results = await userService.searchUsers(query);
+        setSearchResults(results);
+      } catch (err: any) {
+        console.error('Search failed:', err);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 300);
+  };
+
+  const handleStartChatWithUser = async (recipientUser: UserType) => {
+    try {
+      // Send initial message to create chat
+      const message = await chatService.sendMessage({
+        recipient_id: recipientUser.id,
+        content: `Привет, ${recipientUser.display_name || recipientUser.username}!`
+      });
+      
+      // Close modal
+      setShowNewChatModal(false);
+      setSearchQuery('');
+      setSearchResults([]);
+      
+      // Reload chats to see the new one
+      const updatedChats = await chatService.getChats();
+      setChats(updatedChats);
+      setChatsCache(updatedChats);
+      
+      // Find and select the new chat
+      const newChat = updatedChats.find(c => 
+        c.chat_id === message.chat_id
+      );
+      if (newChat) {
+        setSelectedChat(newChat);
+        navigate(`/chat/${newChat.chat_id}`);
+      }
+    } catch (err: any) {
+      console.error('Failed to start chat:', err);
+      alert('Не удалось начать чат');
+    }
+  };
+
 
   return (
     <div className="min-h-screen h-screen flex" style={{ backgroundColor: 'var(--bg-primary)' }}>
@@ -529,6 +598,7 @@ export default function ChatPage() {
         <div className="p-4">
           <motion.button
             whileTap={{ scale: 0.98 }}
+            onClick={() => setShowNewChatModal(true)}
             className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-2xl font-inter font-semibold shadow-sm hover:shadow-md transition"
             style={{ backgroundColor: 'var(--accent-primary)', color: 'white' }}
           >
@@ -1169,6 +1239,130 @@ export default function ChatPage() {
                     Закрыть
                   </motion.button>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* New Chat Modal */}
+      <AnimatePresence>
+        {showNewChatModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => {
+              setShowNewChatModal(false);
+              setSearchQuery('');
+              setSearchResults([]);
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md rounded-3xl shadow-2xl overflow-hidden"
+              style={{ backgroundColor: 'var(--bg-card)' }}
+            >
+              {/* Modal Header */}
+              <div className="p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-2xl font-lora font-semibold" style={{ color: 'var(--text-primary)' }}>
+                    Новый чат
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setShowNewChatModal(false);
+                      setSearchQuery('');
+                      setSearchResults([]);
+                    }}
+                    className="p-2 rounded-full hover:bg-gray-100 transition"
+                  >
+                    <X size={20} style={{ color: 'var(--text-secondary)' }} />
+                  </button>
+                </div>
+
+                {/* Search Input */}
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => handleSearchUsers(e.target.value)}
+                  placeholder="Поиск пользователей..."
+                  autoFocus
+                  className="w-full px-4 py-3 rounded-2xl font-inter text-sm outline-none transition"
+                  style={{
+                    backgroundColor: 'var(--bg-input)',
+                    color: 'var(--text-primary)',
+                    borderBottom: '2px solid transparent',
+                  }}
+                />
+              </div>
+
+              {/* Search Results */}
+              <div className="max-h-96 overflow-y-auto p-4">
+                {searchLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin w-8 h-8 mx-auto mb-4 border-2 border-t-transparent rounded-full" 
+                         style={{ borderColor: 'var(--accent-primary)', borderTopColor: 'transparent' }}></div>
+                    <p className="font-inter text-sm" style={{ color: 'var(--text-secondary)' }}>
+                      Поиск...
+                    </p>
+                  </div>
+                ) : searchQuery.trim().length < 2 ? (
+                  <div className="text-center py-8">
+                    <p className="font-inter text-sm" style={{ color: 'var(--text-secondary)' }}>
+                      Введите имя пользователя для поиска
+                    </p>
+                  </div>
+                ) : searchResults.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="font-inter text-sm" style={{ color: 'var(--text-secondary)' }}>
+                      Пользователи не найдены
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {searchResults.map((foundUser) => (
+                      <motion.button
+                        key={foundUser.id}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => handleStartChatWithUser(foundUser)}
+                        className="w-full flex items-center gap-3 p-3 rounded-2xl transition hover:shadow-sm"
+                        style={{ backgroundColor: 'var(--bg-input)' }}
+                      >
+                        {/* Avatar */}
+                        <div
+                          className="w-12 h-12 flex items-center justify-center flex-shrink-0"
+                          style={{
+                            backgroundImage: foundUser.avatar_url ? `url(${foundUser.avatar_url})` : undefined,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            borderRadius: foundUser.avatar_url ? '50%' : '0',
+                            backgroundColor: foundUser.avatar_url ? 'transparent' : 'var(--bg-input)',
+                          }}
+                        >
+                          {!foundUser.avatar_url && (
+                            <img src={miniLogo} alt="Avatar" className="w-full h-full object-contain" />
+                          )}
+                        </div>
+
+                        {/* User Info */}
+                        <div className="flex-1 text-left">
+                          <p className="font-inter font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
+                            {foundUser.display_name || foundUser.username}
+                          </p>
+                          <p className="font-inter text-xs" style={{ color: 'var(--text-secondary)' }}>
+                            @{foundUser.username}
+                          </p>
+                        </div>
+                      </motion.button>
+                    ))}
+                  </div>
+                )}
               </div>
             </motion.div>
           </motion.div>
