@@ -53,7 +53,7 @@ export default function ChatPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<UserType[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const searchTimeoutRef = useRef<number | null>(null);
 
   // Ref for auto-scroll to bottom
   const messagesEndRef = useRef<HTMLDivElement>(null);
