@@ -35,7 +35,7 @@ class EmailClient:
             msg.attach(MIMEText(html, "html", "utf-8"))
             msg.attach(MIMEText(body, "plain", "utf-8"))
 
-            with smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT) as smtp:
+            with smtplib.SMTP_SSL(settings.SMTP_SERVER, settings.SMTP_PORT) as smtp:
                 if not settings.MODE == "DEV":
                     smtp.starttls()
                     smtp.login(settings.SMTP_EMAIL, settings.SMTP_PASS)
