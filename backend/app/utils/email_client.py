@@ -36,11 +36,9 @@ class EmailClient:
             msg.attach(MIMEText(body, "plain", "utf-8"))
 
             with smtplib.SMTP_SSL(settings.SMTP_SERVER, settings.SMTP_PORT) as smtp:
-                if not settings.MODE == "DEV":
-                    smtp.starttls()
-                    smtp.login(settings.SMTP_EMAIL, settings.SMTP_PASS)
+                smtp.login(settings.SMTP_EMAIL, settings.SMTP_PASS)
                 smtp.send_message(msg)
-            log.info("Email sent successfully", extra={"to": to, "subject": subject})
+            log.info("Email sent successfully %s", to, extra={"to": to, "subject": subject})
         except Exception as e:
             log.error(f"Failed to send email: {str(e)}", extra={"to": to, "subject": subject})
             raise e
