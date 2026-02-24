@@ -41,9 +41,26 @@
   --error-soft: rgba(216, 155, 142, 0.15);
 }
 
+html {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+html,
+body {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+
 body {
   margin: 0;
-  min-height: 100vh;
   font-family: 'Inter', sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -52,5 +69,187 @@ body {
   color: var(--text-primary);
   background-color: var(--bg-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
+  
+  /* Prevent zoom on double tap and long press */
+  touch-action: manipulation;
+  
+  /* Mobile optimization */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  
+  /* Notch support */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+#root {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Text selection for inputs */
+input, textarea, select {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Smooth scrolling */
+@supports (scroll-behavior: smooth) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Mobile touch optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Disable hover states on touch devices */
+  button:hover,
+  a:hover {
+    filter: none;
+  }
+  
+  /* Ensure minimum touch target size */
+  button,
+  input[type="button"],
+  input[type="submit"],
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Prevent iOS default styling */
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+    border-radius: 8px;
+    padding: 12px;
+  }
+  
+  /* Disable blue tap highlight */
+  -webkit-tap-highlight-color: transparent;
+  
+  /* Better focus states for touch */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+  }
+}
+
+/* Prevent text zoom when rotating */
+body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Smooth transitions */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Modal scrolling fix on iOS */
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+}
+
+/* Fix for iOS keyboard appearance */
+@supports (padding: max(0px)) {
+  body {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+}
+
+/* Responsive font sizes */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 641px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* Better button interactivity on mobile */
+button {
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: none;
+}
+
+/* Input styling for mobile */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 8px;
+}
+
+/* Disable auto-zoom on iOS input focus */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  font-size: 16px !important;
+}
+
+/* Smooth scrolling container */
+.overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Better focus visible styling */
+*:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Loading spinner optimization */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+  will-change: transform;
+}
+
+/* Performance: Use GPU acceleration */
+.motion-reduce {
+  animation: none;
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 

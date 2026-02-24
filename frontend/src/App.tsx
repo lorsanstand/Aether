@@ -17,7 +17,7 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F5F5F1' }}>
+      <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#F5F5F1' }}>
         <div className="w-16 h-16 border-4 border-gray-200 rounded-full animate-spin" style={{ borderTopColor: '#6B705C' }}></div>
       </div>
     );
@@ -37,6 +37,30 @@ function App() {
   }, [theme]);
 
   useEffect(() => {
+    // Prevent default iOS behaviors
+    document.addEventListener('touchmove', (e) => {
+      if ((e.target as any).closest('.overflow-y-auto') === null && 
+          (e.target as any).nodeName !== 'INPUT' &&
+          (e.target as any).nodeName !== 'TEXTAREA') {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    // Handle viewport resize on mobile (keyboard appears)
+    const handleResize = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
     const checkAuth = async () => {
       try {
         const user = await authService.getCurrentUser();
@@ -49,7 +73,7 @@ function App() {
     };
 
     checkAuth();
-  }, []); // Пустой массив зависимостей - выполнится только один раз
+  }, []);
 
   return (
     <BrowserRouter>
