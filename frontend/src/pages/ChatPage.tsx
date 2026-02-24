@@ -521,31 +521,31 @@ export default function ChatPage() {
 
 
   return (
-    <div className="w-screen h-screen flex flex-col md:flex-row overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)' }}>
+    <div className="min-h-screen h-screen flex" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Sidebar */}
-      <div className={`w-screen md:w-80 flex flex-col h-screen shadow-soft ${
+      <div className={`w-full md:w-80 flex flex-col shadow-soft ${
         selectedChat ? 'hidden md:flex' : 'flex'
       }`} style={{ backgroundColor: 'var(--bg-card)' }}>
         {/* Header */}
-        <div className="p-2.5 md:p-6 border-b flex-shrink-0" style={{ borderColor: 'var(--border-color)' }}>
-          <h1 className="text-xl md:text-3xl font-lora font-semibold text-center tracking-wider" style={{ color: 'var(--accent-primary)' }}>
+        <div className="p-4 md:p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
+          <h1 className="text-2xl md:text-3xl font-lora font-semibold text-center tracking-wider" style={{ color: 'var(--accent-primary)' }}>
             AETHER
           </h1>
         </div>
 
         {/* Verification Banner */}
         {user && !user.is_verified && (
-          <div className="px-3 py-2 md:p-4 flex-shrink-0">
+          <div className="p-4">
             <VerificationBanner userEmail={user.email} />
           </div>
         )}
 
         {/* User Profile Section */}
-        <div className="px-3 py-3 md:p-6 border-b flex-shrink-0" style={{ borderColor: 'var(--border-color)' }}>
-          <div className="flex items-center gap-2 md:gap-4">
+        <div className="p-4 md:p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
+          <div className="flex items-center gap-3 md:gap-4">
             {/* Avatar */}
             <div
-              className="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center flex-shrink-0 cursor-pointer hover:opacity-90 transition"
+              className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center flex-shrink-0 cursor-pointer hover:opacity-90 transition"
               style={{
                 backgroundImage: user?.avatar_url ? `url(${user.avatar_url})` : undefined,
                 backgroundSize: 'cover',
@@ -562,10 +562,10 @@ export default function ChatPage() {
 
             {/* User Info */}
             <div className="flex-1 min-w-0">
-              <h3 className="font-inter font-semibold text-sm md:text-base truncate" style={{ color: 'var(--text-primary)' }}>
+              <h3 className="font-inter font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
                 {user?.display_name || user?.username}
               </h3>
-              <p className="text-xs md:text-sm font-inter truncate" style={{ color: 'var(--text-secondary)' }}>
+              <p className="text-sm font-inter truncate" style={{ color: 'var(--text-secondary)' }}>
                 @{user?.username}
               </p>
             </div>
@@ -573,61 +573,61 @@ export default function ChatPage() {
             {/* Settings Icon */}
             <button
               onClick={() => navigate('/settings')}
-              className="p-1.5 md:p-2 hover:bg-gray-100 rounded-full transition min-h-touch min-w-touch"
+              className="p-2 hover:bg-gray-100 rounded-full transition"
               title="Настройки"
             >
-              <Settings size={18} style={{ color: 'var(--text-secondary)' }} />
+              <Settings size={20} style={{ color: 'var(--text-secondary)' }} />
             </button>
           </div>
 
           {/* Action Button */}
-          <div className="mt-2 md:mt-4">
+          <div className="mt-4">
             <motion.button
               onClick={() => navigate('/profile')}
               whileTap={{ scale: 0.95 }}
-              className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl md:rounded-2xl font-inter text-xs md:text-sm font-medium transition hover:opacity-80 min-h-touch"
+              className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl font-inter text-sm font-medium transition hover:opacity-80"
               style={{ backgroundColor: 'var(--bg-input)', color: 'var(--accent-primary)' }}
             >
-              <User size={14} className="md:w-4 md:h-4" />
+              <User size={16} />
               Профиль
             </motion.button>
           </div>
         </div>
 
         {/* New Chat Button */}
-        <div className="px-3 py-2 md:p-4 flex-shrink-0">
+        <div className="p-4">
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={() => setShowNewChatModal(true)}
-            className="w-full flex items-center justify-center gap-2 md:gap-3 py-2.5 md:py-3 px-3 md:px-4 rounded-xl md:rounded-2xl font-inter font-semibold text-sm md:text-base shadow-sm hover:shadow-md transition min-h-touch"
+            className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-2xl font-inter font-semibold shadow-sm hover:shadow-md transition"
             style={{ backgroundColor: 'var(--accent-primary)', color: 'white' }}
           >
-            <MessageSquarePlus size={16} className="md:w-5 md:h-5" />
+            <MessageSquarePlus size={20} />
             Новый чат
           </motion.button>
         </div>
 
         {/* Chats List */}
-        <div className="flex-1 overflow-y-auto px-2 md:px-4">
-          <div className="space-y-1 md:space-y-2">
+        <div className="flex-1 overflow-y-auto px-4">
+          <div className="space-y-2">
             {loading ? (
               <div className="text-center py-12 px-4">
                 <div className="animate-spin w-8 h-8 mx-auto mb-4 border-2 border-t-transparent rounded-full" 
                      style={{ borderColor: 'var(--accent-primary)', borderTopColor: 'transparent' }}></div>
-                <p className="font-inter text-xs md:text-sm" style={{ color: 'var(--text-secondary)' }}>
+                <p className="font-inter text-sm" style={{ color: 'var(--text-secondary)' }}>
                   Загрузка чатов...
                 </p>
               </div>
             ) : error ? (
               <div className="text-center py-12 px-4">
-                <p className="font-inter text-xs md:text-sm text-red-500">{error}</p>
+                <p className="font-inter text-sm text-red-500">{error}</p>
               </div>
             ) : chats.length === 0 ? (
               <div className="text-center py-12 px-4">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-accent-terracotta/20 to-accent-olive/20 flex items-center justify-center">
                   <MessageSquarePlus size={32} style={{ color: 'var(--accent-primary)', opacity: 0.5 }} />
                 </div>
-                <p className="font-inter text-xs md:text-sm" style={{ color: 'var(--text-secondary)' }}>
+                <p className="font-inter text-sm" style={{ color: 'var(--text-secondary)' }}>
                   Пока нет чатов
                 </p>
                 <p className="font-inter text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
@@ -641,17 +641,17 @@ export default function ChatPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => handleChatClick(chat)}
-                  className="p-2.5 md:p-4 rounded-lg md:rounded-2xl cursor-pointer transition-all relative overflow-hidden min-h-touch"
+                  className="p-4 rounded-2xl cursor-pointer transition-all relative overflow-hidden"
                   style={{ 
                     backgroundColor: selectedChat?.chat_id === chat.chat_id ? 'var(--accent-primary)' : 'var(--bg-input)',
                     boxShadow: selectedChat?.chat_id === chat.chat_id ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
                   }}
                 >
-                  <div className="flex items-start gap-2.5 md:gap-4">
+                  <div className="flex items-start gap-4">
                     {/* Chat Avatar with Online Indicator */}
                     <div className="relative flex-shrink-0">
                       <div
-                        className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center"
+                        className="w-12 h-12 flex items-center justify-center"
                         style={{
                           backgroundImage: chat.avatar_url ? `url(${chat.avatar_url})` : undefined,
                           backgroundSize: 'cover',
@@ -665,7 +665,7 @@ export default function ChatPage() {
                       </div>
                       {/* Online indicator */}
                       <div 
-                        className="absolute bottom-0 right-0 w-3 h-3 md:w-4 md:h-4 rounded-full border-2"
+                        className="absolute bottom-0 right-0 w-4 h-4 rounded-full border-2"
                         style={{ 
                           backgroundColor: '#10b981',
                           borderColor: 'var(--bg-card)'
@@ -677,7 +677,7 @@ export default function ChatPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-1">
                         <h4 
-                          className="font-inter font-semibold text-sm md:text-base truncate" 
+                          className="font-inter font-semibold text-base truncate" 
                           style={{ color: selectedChat?.chat_id === chat.chat_id ? 'white' : 'var(--text-primary)' }}
                         >
                           {chat.display_name}
@@ -696,14 +696,14 @@ export default function ChatPage() {
                       
                       {chat.last_message ? (
                         <p 
-                          className="font-inter text-xs md:text-sm truncate" 
+                          className="font-inter text-sm truncate" 
                           style={{ color: selectedChat?.chat_id === chat.chat_id ? 'rgba(255,255,255,0.85)' : 'var(--text-secondary)' }}
                         >
                           {chat.last_message}
                         </p>
                       ) : (
                         <p 
-                          className="font-inter text-xs md:text-sm italic truncate" 
+                          className="font-inter text-sm italic truncate" 
                           style={{ color: selectedChat?.chat_id === chat.chat_id ? 'rgba(255,255,255,0.6)' : 'var(--text-secondary)' }}
                         >
                           Нет сообщений
@@ -718,7 +718,7 @@ export default function ChatPage() {
         </div>
 
         {/* Footer Info */}
-        <div className="p-2 md:p-4 border-t text-center flex-shrink-0" style={{ borderColor: 'var(--border-color)' }}>
+        <div className="p-4 border-t text-center" style={{ borderColor: 'var(--border-color)' }}>
           <p className="text-xs font-inter" style={{ color: 'var(--text-secondary)' }}>
             Aether Chat v1.0
           </p>
@@ -726,13 +726,13 @@ export default function ChatPage() {
       </div>
 
       {/* Main Chat Area */}
-      <div className={`flex-1 flex flex-col h-screen relative ${
+      <div className={`flex-1 flex flex-col relative ${
         selectedChat ? 'flex' : 'hidden md:flex'
       }`}>
         {selectedChat ? (
           <>
             {/* Chat Header */}
-            <div className="px-2 md:px-4 py-2 md:py-4 border-b flex items-center gap-2 md:gap-4 flex-shrink-0" style={{ 
+            <div className="p-3 md:p-4 border-b flex items-center gap-2 md:gap-4" style={{ 
               backgroundColor: 'var(--bg-card)', 
               borderColor: 'var(--border-color)' 
             }}>
@@ -740,21 +740,21 @@ export default function ChatPage() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={handleBackToChats}
-                className="p-2 rounded-full transition min-h-touch min-w-touch"
+                className="p-2 rounded-full transition"
                 style={{ 
                   backgroundColor: 'var(--bg-input)',
                   color: 'var(--text-primary)'
                 }}
                 title="Назад к чатам"
               >
-                <ArrowLeft size={18} className="md:w-5 md:h-5" />
+                <ArrowLeft size={20} />
               </motion.button>
 
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleViewUserProfile(selectedChat.user_id)}
-                className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 flex items-center justify-center cursor-pointer"
+                className="w-12 h-12 flex-shrink-0 flex items-center justify-center cursor-pointer"
                 style={{
                   backgroundImage: selectedChat.avatar_url ? `url(${selectedChat.avatar_url})` : undefined,
                   backgroundSize: 'cover',
@@ -771,7 +771,7 @@ export default function ChatPage() {
                 className="flex-1 min-w-0 cursor-pointer"
                 onClick={() => handleViewUserProfile(selectedChat.user_id)}
               >
-                <h3 className="font-inter font-semibold text-sm md:text-base truncate hover:underline" style={{ color: 'var(--text-primary)' }}>
+                <h3 className="font-inter font-semibold truncate hover:underline" style={{ color: 'var(--text-primary)' }}>
                   {selectedChat.display_name}
                 </h3>
                 <p className="text-xs font-inter" style={{ color: 'var(--text-secondary)' }}>
@@ -784,7 +784,7 @@ export default function ChatPage() {
             <div 
               ref={messagesContainerRef}
               onScroll={handleScroll}
-              className="flex-1 overflow-y-auto px-3 md:px-6 py-4 md:py-6 relative" 
+              className="flex-1 overflow-y-auto p-6 relative" 
               style={{ 
                 backgroundColor: 'var(--bg-primary)',
                 backgroundImage: `
@@ -848,8 +848,8 @@ export default function ChatPage() {
                       <div key={message.id}>
                         {/* Date divider */}
                         {showDateDivider && (
-                          <div className="flex items-center justify-center my-4 md:my-6">
-                            <div className="px-3 md:px-4 py-1.5 md:py-2 rounded-full font-inter text-xs font-medium shadow-sm" 
+                          <div className="flex items-center justify-center my-6">
+                            <div className="px-4 py-2 rounded-full font-inter text-xs font-medium shadow-sm" 
                                  style={{ 
                                    backgroundColor: 'var(--bg-card)', 
                                    color: 'var(--text-secondary)',
@@ -864,7 +864,7 @@ export default function ChatPage() {
                           initial={{ opacity: 0, y: 20, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           transition={{ duration: 0.4, ease: "easeOut" }}
-                          className={`flex gap-2 md:gap-3 mb-2 md:mb-3 ${isMyMessage ? 'justify-end' : 'justify-start'} ${!showAvatar && !isMyMessage ? 'ml-8 md:ml-11' : ''}`}
+                          className={`flex gap-3 mb-3 ${isMyMessage ? 'justify-end' : 'justify-start'} ${!showAvatar && !isMyMessage ? 'ml-11' : ''}`}
                         >
                         {/* Avatar for incoming messages */}
                         {!isMyMessage && showAvatar && (
@@ -872,7 +872,7 @@ export default function ChatPage() {
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ delay: 0.1 }}
-                            className="w-7 h-7 md:w-9 md:h-9 flex-shrink-0 flex items-center justify-center self-end shadow-md"
+                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center self-end shadow-md"
                             style={{
                               backgroundImage: selectedChat.avatar_url ? `url(${selectedChat.avatar_url})` : undefined,
                               backgroundSize: 'cover',
@@ -888,20 +888,20 @@ export default function ChatPage() {
                         )}
 
                         {/* Message bubble */}
-                        <div className="flex flex-col max-w-xs md:max-w-lg">
+                        <div className="flex flex-col max-w-lg">
                           {/* Sender name for incoming messages */}
                           {!isMyMessage && showAvatar && (
-                            <span className="text-xs font-inter font-medium mb-0.5 md:mb-1 px-2" style={{ color: 'var(--accent-primary)' }}>
+                            <span className="text-xs font-inter font-medium mb-1 px-2" style={{ color: 'var(--accent-primary)' }}>
                               {selectedChat.display_name}
                             </span>
                           )}
                           
                           <motion.div
                             whileHover={{ scale: 1.02 }}
-                            className={`px-3 md:px-5 py-2 md:py-3 font-inter text-sm md:text-[15px] leading-relaxed relative group ${
+                            className={`px-5 py-3 font-inter text-[15px] leading-relaxed relative group ${
                               isMyMessage 
-                                ? 'rounded-2xl md:rounded-[20px] rounded-br-sm' 
-                                : 'rounded-2xl md:rounded-[20px] rounded-bl-sm'
+                                ? 'rounded-[20px] rounded-br-md' 
+                                : 'rounded-[20px] rounded-bl-md'
                             }`}
                             style={{
                               backgroundColor: isMyMessage ? 'var(--accent-primary)' : 'var(--bg-card)',
@@ -912,38 +912,38 @@ export default function ChatPage() {
                               border: isMyMessage ? 'none' : '1px solid var(--border-color)'
                             }}
                           >
-                            {/* Edit and Delete buttons - только для своих сообщений на десктопе */}
+                            {/* Edit and Delete buttons - показываем только для своих сообщений */}
                             {isMyMessage && editingMessageId !== message.id && (
                               <>
                                 <button
                                   onClick={() => handleStartEdit(message)}
-                                  className="absolute -top-2 -right-10 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md hidden md:block"
+                                  className="absolute -top-2 -right-10 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
                                   style={{ backgroundColor: 'var(--bg-card)', color: 'var(--accent-primary)' }}
                                   title="Редактировать"
                                 >
-                                  <Pencil size={12} className="md:w-3.5 md:h-3.5" />
+                                  <Pencil size={14} />
                                 </button>
                                 <button
                                   onClick={() => handleDeleteMessage(message.id)}
-                                  className="absolute -top-2 -right-2 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md hidden md:block"
+                                  className="absolute -top-2 -right-2 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
                                   style={{ backgroundColor: 'var(--bg-card)', color: '#DC2626' }}
                                   title="Удалить"
                                 >
-                                  <Trash2 size={12} className="md:w-3.5 md:h-3.5" />
+                                  <Trash2 size={14} />
                                 </button>
                               </>
                             )}
                             
                             {/* Message content or edit input */}
                             {editingMessageId === message.id ? (
-                              <div className="flex items-center gap-1 md:gap-2">
+                              <div className="flex items-center gap-2">
                                 <input
                                   type="text"
                                   value={editingMessageText}
                                   onChange={(e) => setEditingMessageText(e.target.value)}
                                   onKeyDown={(e) => handleEditKeyPress(e, message.id)}
                                   autoFocus
-                                  className="flex-1 bg-transparent border-b-2 outline-none text-sm md:text-base"
+                                  className="flex-1 bg-transparent border-b-2 outline-none"
                                   style={{ 
                                     borderColor: isMyMessage ? 'rgba(255,255,255,0.5)' : 'var(--accent-primary)',
                                     color: isMyMessage ? 'white' : 'var(--text-primary)'
@@ -951,17 +951,17 @@ export default function ChatPage() {
                                 />
                                 <button
                                   onClick={() => handleSaveEdit(message.id)}
-                                  className="p-1 hover:opacity-70 transition min-w-touch min-h-touch flex items-center justify-center"
+                                  className="p-1 hover:opacity-70 transition"
                                   title="Сохранить (Enter)"
                                 >
-                                  <Check size={14} className="md:w-4 md:h-4" />
+                                  <Check size={16} />
                                 </button>
                                 <button
                                   onClick={handleCancelEdit}
-                                  className="p-1 hover:opacity-70 transition min-w-touch min-h-touch flex items-center justify-center"
+                                  className="p-1 hover:opacity-70 transition"
                                   title="Отмена (Esc)"
                                 >
-                                  <X size={14} className="md:w-4 md:h-4" />
+                                  <X size={16} />
                                 </button>
                               </div>
                             ) : (
@@ -969,11 +969,11 @@ export default function ChatPage() {
                             )}
                             
                             {/* Message metadata */}
-                            <div className={`flex items-center gap-1 md:gap-2 mt-0.5 md:mt-1 ${isMyMessage ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`flex items-center gap-2 mt-1 ${isMyMessage ? 'justify-end' : 'justify-start'}`}>
                               {/* Edited indicator */}
                               {message.is_edited && (
                                 <span 
-                                  className="text-[10px] md:text-[11px] font-inter font-medium italic"
+                                  className="text-[11px] font-inter font-medium italic"
                                   style={{ 
                                     color: isMyMessage ? 'rgba(255,255,255,0.6)' : 'var(--text-secondary)',
                                   }}
@@ -983,7 +983,7 @@ export default function ChatPage() {
                               )}
                               
                               <span 
-                                className="text-[10px] md:text-[11px] font-inter font-medium"
+                                className="text-[11px] font-inter font-medium"
                                 style={{ 
                                   color: isMyMessage ? 'rgba(255,255,255,0.75)' : 'var(--text-secondary)',
                                 }}
@@ -997,8 +997,8 @@ export default function ChatPage() {
                               {/* Read status for my messages */}
                               {isMyMessage && (
                                 <svg 
-                                  width="14" 
-                                  height="14" 
+                                  width="16" 
+                                  height="16" 
                                   viewBox="0 0 16 16" 
                                   fill="none"
                                   style={{ opacity: 0.75 }}
@@ -1022,7 +1022,7 @@ export default function ChatPage() {
                             </div>
                           </motion.div>
                           
-                          {/* Reactions placeholder */}
+                          {/* Reactions placeholder - можно добавить позже */}
                           {isLastInGroup && false && (
                             <div className="flex gap-1 mt-1 px-2">
                               <span className="text-xs">❤️</span>
@@ -1076,7 +1076,7 @@ export default function ChatPage() {
             </AnimatePresence>
 
             {/* Message Input */}
-            <div className="px-2 md:px-4 py-2 md:py-4 border-t flex-shrink-0" style={{ 
+            <div className="p-3 md:p-4 border-t" style={{ 
               backgroundColor: 'var(--bg-card)', 
               borderColor: 'var(--border-color)' 
             }}>
@@ -1087,14 +1087,13 @@ export default function ChatPage() {
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Сообщение..."
+                  placeholder="Написать сообщение..."
                   disabled={sendingMessage}
-                  className="flex-1 px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-2xl font-inter text-sm md:text-base outline-none transition min-h-touch"
+                  className="flex-1 px-3 md:px-4 py-2.5 md:py-3 rounded-2xl font-inter text-sm outline-none transition"
                   style={{
                     backgroundColor: 'var(--bg-input)',
                     color: 'var(--text-primary)',
                     borderBottom: '2px solid transparent',
-                    fontSize: '16px', // Prevent iOS zoom on input focus
                   }}
                   onFocus={(e) => e.target.style.borderBottomColor = 'var(--accent-primary)'}
                   onBlur={(e) => e.target.style.borderBottomColor = 'transparent'}
@@ -1103,13 +1102,13 @@ export default function ChatPage() {
                   whileTap={{ scale: 0.95 }}
                   onClick={handleSendMessage}
                   disabled={!messageText.trim() || sendingMessage}
-                  className="px-3 md:px-6 py-2 md:py-3 rounded-lg md:rounded-2xl font-inter font-semibold flex items-center justify-center gap-1 md:gap-2 transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed min-h-touch min-w-touch"
+                  className="px-4 md:px-6 py-2.5 md:py-3 rounded-2xl font-inter font-semibold flex items-center gap-2 transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ backgroundColor: 'var(--accent-primary)', color: 'white' }}
                 >
                   {sendingMessage ? (
-                    <div className="animate-spin w-4 h-4 md:w-5 md:h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                    <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
                   ) : (
-                    <Send size={16} className="md:w-4.5 md:h-4.5" />
+                    <Send size={18} />
                   )}
                 </motion.button>
               </div>
@@ -1146,38 +1145,38 @@ export default function ChatPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-end md:items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
             onClick={() => setViewingUser(null)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 100 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 100 }}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", duration: 0.3 }}
-              className="rounded-t-3xl md:rounded-3xl shadow-2xl w-full md:max-w-md overflow-hidden"
+              className="rounded-3xl shadow-2xl max-w-md w-full overflow-hidden"
               style={{ backgroundColor: 'var(--bg-card)' }}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="relative p-4 md:p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
+              <div className="relative p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
                 <button
                   onClick={() => setViewingUser(null)}
-                  className="absolute top-3 md:top-4 right-3 md:right-4 p-2 rounded-full hover:bg-gray-100 transition min-h-touch min-w-touch"
+                  className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition"
                   style={{ color: 'var(--text-secondary)' }}
                 >
-                  <X size={18} className="md:w-5 md:h-5" />
+                  <X size={20} />
                 </button>
-                <h2 className="text-lg md:text-xl font-lora font-semibold" style={{ color: 'var(--text-primary)' }}>
+                <h2 className="text-xl font-lora font-semibold" style={{ color: 'var(--text-primary)' }}>
                   Профиль пользователя
                 </h2>
               </div>
 
               {/* Modal Content */}
-              <div className="p-4 md:p-6">
+              <div className="p-6">
                 {/* Avatar */}
-                <div className="flex justify-center mb-4 md:mb-6">
+                <div className="flex justify-center mb-6">
                   <div
-                    className="w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center shadow-lg"
+                    className="w-32 h-32 rounded-full flex items-center justify-center shadow-lg"
                     style={{
                       backgroundImage: viewingUser.avatar_url ? `url(${viewingUser.avatar_url})` : undefined,
                       backgroundSize: 'cover',
@@ -1186,32 +1185,32 @@ export default function ChatPage() {
                     }}
                   >
                     {!viewingUser.avatar_url && (
-                      <User size={36} className="md:w-12 md:h-12" style={{ color: 'var(--text-secondary)' }} />
+                      <User size={48} style={{ color: 'var(--text-secondary)' }} />
                     )}
                   </div>
                 </div>
 
                 {/* User Info */}
-                <div className="space-y-3 md:space-y-4">
+                <div className="space-y-4">
                   <div className="text-center">
-                    <h3 className="text-lg md:text-2xl font-lora font-semibold mb-0.5 md:mb-1" style={{ color: 'var(--text-primary)' }}>
+                    <h3 className="text-2xl font-lora font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
                       {viewingUser.display_name}
                     </h3>
-                    <p className="text-xs md:text-sm font-inter" style={{ color: 'var(--text-secondary)' }}>
+                    <p className="text-sm font-inter" style={{ color: 'var(--text-secondary)' }}>
                       @{viewingUser.username}
                     </p>
                   </div>
 
                   {viewingUser.description && (
-                    <div className="p-3 md:p-4 rounded-lg md:rounded-2xl" style={{ backgroundColor: 'var(--bg-input)' }}>
-                      <p className="text-sm md:text-base font-inter" style={{ color: 'var(--text-primary)' }}>
+                    <div className="p-4 rounded-2xl" style={{ backgroundColor: 'var(--bg-input)' }}>
+                      <p className="text-sm font-inter" style={{ color: 'var(--text-primary)' }}>
                         {viewingUser.description}
                       </p>
                     </div>
                   )}
 
                   {viewingUser.birth_day && (
-                    <div className="flex items-center gap-2 text-xs md:text-sm font-inter" style={{ color: 'var(--text-secondary)' }}>
+                    <div className="flex items-center gap-2 text-sm font-inter" style={{ color: 'var(--text-secondary)' }}>
                       <span>🎂</span>
                       <span>
                         {new Date(viewingUser.birth_day).toLocaleDateString('ru-RU', {
@@ -1223,18 +1222,18 @@ export default function ChatPage() {
                     </div>
                   )}
 
-                  <div className="flex items-center gap-2 text-xs md:text-sm font-inter" style={{ color: 'var(--text-secondary)' }}>
+                  <div className="flex items-center gap-2 text-sm font-inter" style={{ color: 'var(--text-secondary)' }}>
                     <span>✉️</span>
-                    <span className="truncate">{viewingUser.email}</span>
+                    <span>{viewingUser.email}</span>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t" style={{ borderColor: 'var(--border-color)' }}>
+                <div className="mt-6 pt-6 border-t" style={{ borderColor: 'var(--border-color)' }}>
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setViewingUser(null)}
-                    className="w-full py-2.5 md:py-3 px-4 rounded-lg md:rounded-2xl font-inter font-semibold transition hover:opacity-90 min-h-touch"
+                    className="w-full py-3 px-4 rounded-2xl font-inter font-semibold transition hover:opacity-90"
                     style={{ backgroundColor: 'var(--accent-primary)', color: 'white' }}
                   >
                     Закрыть
@@ -1253,7 +1252,7 @@ export default function ChatPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-end md:items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
             onClick={() => {
               setShowNewChatModal(false);
               setSearchQuery('');
@@ -1261,17 +1260,17 @@ export default function ChatPage() {
             }}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 100 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 100 }}
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full md:max-w-md rounded-t-3xl md:rounded-3xl shadow-2xl overflow-hidden"
+              className="w-full max-w-md rounded-3xl shadow-2xl overflow-hidden"
               style={{ backgroundColor: 'var(--bg-card)' }}
             >
               {/* Modal Header */}
-              <div className="p-4 md:p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
-                <div className="flex items-center justify-between mb-3 md:mb-4">
-                  <h2 className="text-lg md:text-2xl font-lora font-semibold" style={{ color: 'var(--text-primary)' }}>
+              <div className="p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-2xl font-lora font-semibold" style={{ color: 'var(--text-primary)' }}>
                     Новый чат
                   </h2>
                   <button
@@ -1280,9 +1279,9 @@ export default function ChatPage() {
                       setSearchQuery('');
                       setSearchResults([]);
                     }}
-                    className="p-2 rounded-full hover:bg-gray-100 transition min-h-touch min-w-touch"
+                    className="p-2 rounded-full hover:bg-gray-100 transition"
                   >
-                    <X size={18} className="md:w-5 md:h-5" style={{ color: 'var(--text-secondary)' }} />
+                    <X size={20} style={{ color: 'var(--text-secondary)' }} />
                   </button>
                 </div>
 
@@ -1293,52 +1292,51 @@ export default function ChatPage() {
                   onChange={(e) => handleSearchUsers(e.target.value)}
                   placeholder="Поиск пользователей..."
                   autoFocus
-                  className="w-full px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-2xl font-inter text-sm md:text-base outline-none transition"
+                  className="w-full px-4 py-3 rounded-2xl font-inter text-sm outline-none transition"
                   style={{
                     backgroundColor: 'var(--bg-input)',
                     color: 'var(--text-primary)',
                     borderBottom: '2px solid transparent',
-                    fontSize: '16px', // Prevent iOS zoom
                   }}
                 />
               </div>
 
               {/* Search Results */}
-              <div className="max-h-96 overflow-y-auto p-3 md:p-4">
+              <div className="max-h-96 overflow-y-auto p-4">
                 {searchLoading ? (
                   <div className="text-center py-8">
                     <div className="animate-spin w-8 h-8 mx-auto mb-4 border-2 border-t-transparent rounded-full" 
                          style={{ borderColor: 'var(--accent-primary)', borderTopColor: 'transparent' }}></div>
-                    <p className="font-inter text-xs md:text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    <p className="font-inter text-sm" style={{ color: 'var(--text-secondary)' }}>
                       Поиск...
                     </p>
                   </div>
                 ) : searchQuery.trim().length < 2 ? (
                   <div className="text-center py-8">
-                    <p className="font-inter text-xs md:text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    <p className="font-inter text-sm" style={{ color: 'var(--text-secondary)' }}>
                       Введите имя пользователя для поиска
                     </p>
                   </div>
                 ) : searchResults.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className="font-inter text-xs md:text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    <p className="font-inter text-sm" style={{ color: 'var(--text-secondary)' }}>
                       Пользователи не найдены
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-1.5 md:space-y-2">
+                  <div className="space-y-2">
                     {searchResults.map((foundUser) => (
                       <motion.button
                         key={foundUser.id}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => handleStartChatWithUser(foundUser)}
-                        className="w-full flex items-center gap-2 md:gap-3 p-2.5 md:p-3 rounded-lg md:rounded-2xl transition hover:shadow-sm min-h-touch"
+                        className="w-full flex items-center gap-3 p-3 rounded-2xl transition hover:shadow-sm"
                         style={{ backgroundColor: 'var(--bg-input)' }}
                       >
                         {/* Avatar */}
                         <div
-                          className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center flex-shrink-0"
+                          className="w-12 h-12 flex items-center justify-center flex-shrink-0"
                           style={{
                             backgroundImage: foundUser.avatar_url ? `url(${foundUser.avatar_url})` : undefined,
                             backgroundSize: 'cover',
@@ -1353,11 +1351,11 @@ export default function ChatPage() {
                         </div>
 
                         {/* User Info */}
-                        <div className="flex-1 text-left min-w-0">
-                          <p className="font-inter font-semibold text-xs md:text-sm truncate" style={{ color: 'var(--text-primary)' }}>
+                        <div className="flex-1 text-left">
+                          <p className="font-inter font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
                             {foundUser.display_name || foundUser.username}
                           </p>
-                          <p className="font-inter text-xs truncate" style={{ color: 'var(--text-secondary)' }}>
+                          <p className="font-inter text-xs" style={{ color: 'var(--text-secondary)' }}>
                             @{foundUser.username}
                           </p>
                         </div>
