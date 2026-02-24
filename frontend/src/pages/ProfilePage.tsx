@@ -151,50 +151,51 @@ export default function ProfilePage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <div className="max-w-4xl mx-auto p-4 md:p-6">
-        {/* Header */}
-        <div className="mb-4 md:mb-6 flex items-center justify-between">
-          <button
-            onClick={() => navigate('/chat')}
-            className="flex items-center gap-2 font-inter font-medium hover:opacity-70 transition"
-            style={{ color: 'var(--accent-primary)' }}
-          >
-            <ArrowLeft size={20} />
-            <span className="hidden sm:inline">Назад к чатам</span>
-          </button>
-          <div className="flex items-center gap-3">
+    <div className="w-screen h-screen flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      <div className="flex-1 overflow-y-auto flex flex-col">
+        <div className="max-w-4xl mx-auto w-full p-3 md:p-6">
+          {/* Header */}
+          <div className="mb-3 md:mb-6 flex items-center justify-between flex-shrink-0">
             <button
-              onClick={() => navigate('/settings')}
-              className="flex items-center gap-2 font-inter font-medium hover:opacity-70 transition"
-              style={{ color: 'var(--text-secondary)' }}
-              title="Настройки"
+              onClick={() => navigate('/chat')}
+              className="flex items-center gap-2 font-inter font-medium hover:opacity-70 transition min-h-touch min-w-touch"
+              style={{ color: 'var(--accent-primary)' }}
             >
-              <Settings size={20} />
+              <ArrowLeft size={16} className="md:w-5 md:h-5" />
+              <span className="text-sm md:text-base hidden sm:inline">Назад</span>
             </button>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 font-inter font-medium hover:opacity-70 transition"
-              style={{ color: 'var(--error-color)' }}
-            >
-              <LogOut size={20} />
-              Выйти
-            </button>
+            <div className="flex items-center gap-2 md:gap-3">
+              <button
+                onClick={() => navigate('/settings')}
+                className="flex items-center gap-2 font-inter font-medium hover:opacity-70 transition min-h-touch min-w-touch"
+                style={{ color: 'var(--text-secondary)' }}
+                title="Настройки"
+              >
+                <Settings size={16} className="md:w-5 md:h-5" />
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1 md:gap-2 font-inter font-medium hover:opacity-70 transition text-xs md:text-sm min-h-touch min-w-touch"
+                style={{ color: 'var(--error-color)' }}
+              >
+                <LogOut size={14} className="md:w-5 md:h-5" />
+                <span className="hidden sm:inline">Выйти</span>
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Verification Banner */}
-        {!user.is_verified && (
-          <VerificationBanner userEmail={user.email} />
-        )}
+          {/* Verification Banner */}
+          {!user.is_verified && (
+            <VerificationBanner userEmail={user.email} />
+          )}
 
-        {/* Profile Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl md:rounded-3xl shadow-soft p-4 md:p-8"
-          style={{ backgroundColor: 'var(--bg-card)' }}
-        >
+          {/* Profile Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-xl md:rounded-3xl shadow-soft p-4 md:p-8"
+            style={{ backgroundColor: 'var(--bg-card)' }}
+          >
           {/* Avatar Section */}
           <div className="flex flex-col items-center mb-6 md:mb-8">
             <div className="relative">
@@ -572,12 +573,13 @@ export default function ProfilePage() {
               onClick={handleDeleteAccount}
               whileTap={{ scale: 0.95 }}
               style={{ backgroundColor: 'var(--error-color)', color: 'white' }}
-              className="py-3 px-6 rounded-full font-inter font-semibold hover:shadow-lg transition-all"
+              className="py-2 md:py-3 px-4 md:px-6 rounded-lg md:rounded-full font-inter font-semibold text-sm md:text-base hover:shadow-lg transition-all min-h-touch"
             >
               Удалить аккаунт
             </motion.button>
           </div>
         </motion.div>
+        </div>
       </div>
     </div>
   );

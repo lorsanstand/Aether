@@ -8,7 +8,7 @@ export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-3 md:p-4 relative" style={{ backgroundColor: '#F5F5F1' }}>
+    <div className="w-screen h-screen flex items-center justify-center p-3 md:p-4 relative overflow-hidden" style={{ backgroundColor: '#F5F5F1' }}>
       {/* Subtle texture background */}
       <div className="absolute inset-0 opacity-30 pointer-events-none"
            style={{ 
@@ -23,19 +23,19 @@ export default function AuthPage() {
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="bg-card-white rounded-[24px] md:rounded-[32px] shadow-soft px-6 md:px-10 py-8 md:py-12">
+        <div className="bg-card-white rounded-2xl md:rounded-3xl shadow-soft px-5 md:px-10 py-8 md:py-12">
           {/* Logo */}
-          <div className="text-center mb-6 md:mb-8">
-            <div className="auth-logo w-[80px] h-[80px] md:w-[100px] md:h-[100px] mx-auto mb-6 md:mb-8 flex items-center justify-center">
+          <div className="text-center mb-5 md:mb-8">
+            <div className="auth-logo w-16 h-16 md:w-24 md:h-24 mx-auto mb-4 md:mb-6 flex items-center justify-center">
               <img src={miniLogo} alt="Aether Logo" className="w-full h-full object-contain" />
             </div>
-            <div className="font-lora text-accent-olive text-base md:text-lg tracking-[2px] mb-4 md:mb-6">
+            <div className="font-lora text-accent-olive text-sm md:text-lg tracking-[2px] mb-3 md:mb-4">
               AETHER
             </div>
             <AnimatePresence mode="wait">
               <motion.h1 
                 key={isLogin ? 'login' : 'register'}
-                className="font-lora font-semibold text-2xl md:text-[28px] text-text-main mb-2"
+                className="font-lora font-semibold text-xl md:text-2xl text-text-main mb-2"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
@@ -60,13 +60,13 @@ export default function AuthPage() {
           </AnimatePresence>
 
           {/* Switch */}
-          <div className="mt-6 text-center text-sm font-inter" style={{ color: '#8B8B8B' }}>
+          <div className="mt-5 md:mt-6 text-center text-xs md:text-sm font-inter" style={{ color: '#8B8B8B' }}>
             {isLogin ? (
               <>
                 Ещё нет аккаунта?{' '}
                 <button
                   onClick={() => setIsLogin(false)}
-                  className="font-medium hover:underline transition"
+                  className="font-medium hover:underline transition min-h-touch"
                   style={{ color: '#6B705C' }}
                 >
                   Зарегистрироваться
@@ -77,7 +77,7 @@ export default function AuthPage() {
                 Уже есть аккаунт?{' '}
                 <button
                   onClick={() => setIsLogin(true)}
-                  className="font-medium hover:underline transition"
+                  className="font-medium hover:underline transition min-h-touch"
                   style={{ color: '#6B705C' }}
                 >
                   Войти
