@@ -46,6 +46,8 @@ html {
   height: 100%;
   width: 100%;
   overflow: hidden;
+  --vh: 1vh;
+  --keyboard-height: 0px;
 }
 
 html,
@@ -144,6 +146,19 @@ input, textarea, select {
     outline: 2px solid var(--accent-primary);
     outline-offset: 2px;
   }
+  
+  /* Fix for iOS input zoom and keyboard behavior */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  textarea {
+    font-size: 16px !important;
+    padding: 8px 12px;
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 8px;
+  }
 }
 
 /* Prevent text zoom when rotating */
@@ -163,7 +178,7 @@ body.modal-open {
   position: fixed;
 }
 
-/* Fix for iOS keyboard appearance */
+/* Fix for iOS keyboard appearance - prevents scrolling under keyboard */
 @supports (padding: max(0px)) {
   body {
     padding-bottom: max(env(safe-area-inset-bottom), 0px);
@@ -191,7 +206,7 @@ button {
   border: none;
 }
 
-/* Input styling for mobile */
+/* Input styling for mobile - prevent zoom and unwanted behavior */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -199,6 +214,7 @@ textarea {
   -webkit-appearance: none;
   appearance: none;
   border-radius: 8px;
+  font-size: 16px;
 }
 
 /* Disable auto-zoom on iOS input focus */
@@ -210,7 +226,7 @@ select {
   font-size: 16px !important;
 }
 
-/* Smooth scrolling container */
+/* Smooth scrolling container - support iOS momentum scrolling */
 .overflow-y-auto {
   -webkit-overflow-scrolling: touch;
 }
@@ -250,6 +266,60 @@ select {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* iOS specific fixes for input fields */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea {
+  /* Prevent iOS default styling */
+  -webkit-border-radius: 8px;
+  border-radius: 8px;
+  
+  /* Prevent zooming on focus */
+  font-size: 16px !important;
+  
+  /* Fix for iOS bug where input gets zoomed */
+  max-width: 100%;
+  
+  /* Better input styling on iOS */
+  -webkit-padding-start: 12px;
+  padding-inline-start: 12px;
+}
+
+/* Ensure chat container doesn't overflow */
+[role="region"] {
+  overflow: hidden;
+  max-width: 100vw;
+}
+
+/* Fix for messages container not respecting keyboard */
+.message-container {
+  padding-bottom: var(--keyboard-height);
+  transition: padding-bottom 0.15s ease-out;
+}
+
+/* Sticky header support */
+.sticky {
+  position: sticky;
+  z-index: 40;
+}
+
+/* Safe area support for notch and status bar */
+@supports (padding: max(0px)) {
+  .sticky-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+}
+
+/* Smooth backdrop filter transitions */
+@supports (backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px)) {
+  .sticky-header {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 }
 
