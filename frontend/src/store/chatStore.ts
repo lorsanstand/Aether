@@ -14,11 +14,11 @@ export const useChatStore = create<ChatStore>()(
     (set) => ({
       chats: [],
       
-      setChats: (chats) => set({ chats }),
+      setChats: (chats) => set({ chats: Array.isArray(chats) ? chats : [] }),
       
       updateChat: (chatId, updates) => 
         set((state) => ({
-          chats: state.chats.map(chat => 
+          chats: (Array.isArray(state.chats) ? state.chats : []).map(chat => 
             chat.chat_id === chatId ? { ...chat, ...updates } : chat
           )
         })),

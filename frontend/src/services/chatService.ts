@@ -1,5 +1,22 @@
 import apiClient from './api';
 
+const extractArray = <T>(payload: unknown): T[] => {
+  if (Array.isArray(payload)) {
+    return payload as T[];
+  }
+
+  if (payload && typeof payload === 'object') {
+    const record = payload as Record<string, unknown>;
+    const candidates = [record.items, record.results, record.data, record.chats, record.messages];
+    const firstArray = candidates.find(Array.isArray);
+    if (firstArray) {
+      return firstArray as T[];
+    }
+  }
+
+  return [];
+};
+
 export type Chat = {
   chat_id: string;
   user_id: number;
@@ -34,14 +51,14 @@ const chatService = {
     const response = await apiClient.get('/chats/', {
       params: { offset, limit }
     });
-    return response.data;
+    return extractArray<Chat>(response.data);
   },
 
   async getChatMessages(chatId: string, offset: number = 0, limit: number = 50): Promise<Message[]> {
     const response = await apiClient.get(`/chats/${chatId}`, {
       params: { offset, limit }
     });
-    return response.data;
+    return extractArray<Message>(response.data);
   },
 
   async sendMessage(data: MessageCreate): Promise<Message> {
