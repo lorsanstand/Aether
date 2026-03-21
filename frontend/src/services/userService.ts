@@ -1,5 +1,22 @@
 import apiClient from './api';
 
+const extractUsersArray = (payload: unknown): User[] => {
+  if (Array.isArray(payload)) {
+    return payload as User[];
+  }
+
+  if (payload && typeof payload === 'object') {
+    const record = payload as Record<string, unknown>;
+    const candidates = [record.items, record.results, record.data, record.users];
+    const firstArray = candidates.find(Array.isArray);
+    if (firstArray) {
+      return firstArray as User[];
+    }
+  }
+
+  return [];
+};
+
 export interface User {
   id: number;
   display_name: string;
@@ -60,7 +77,7 @@ export const userService = {
     const response = await apiClient.get('/users/search', {
       params: { username, offset, limit }
     });
-    return response.data;
+    return extractUsersArray(response.data);
   },
 
   deleteAccount: async (): Promise<void> => {

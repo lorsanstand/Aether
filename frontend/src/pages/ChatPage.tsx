@@ -18,9 +18,10 @@ export default function ChatPage() {
   const cachedChats = useChatStore((state) => state.chats);
   const setChatsCache = useChatStore((state) => state.setChats);
   const updateChatCache = useChatStore((state) => state.updateChat);
+  const safeCachedChats = Array.isArray(cachedChats) ? cachedChats : [];
   
-  const [chats, setChats] = useState<Chat[]>(cachedChats); // Initialize with cached data
-  const [loading, setLoading] = useState(cachedChats.length === 0); // Don't show loading if we have cache
+  const [chats, setChats] = useState<Chat[]>(safeCachedChats); // Initialize with cached data
+  const [loading, setLoading] = useState(safeCachedChats.length === 0); // Don't show loading if we have cache
   const [error, setError] = useState<string | null>(null);
   
   // Selected chat state
@@ -68,7 +69,7 @@ export default function ChatPage() {
   useEffect(() => {
     const loadChats = async () => {
       try {
-        if (cachedChats.length === 0) {
+        if (safeCachedChats.length === 0) {
           setLoading(true);
         }
         setError(null);
@@ -93,7 +94,7 @@ export default function ChatPage() {
     };
 
     loadChats();
-  }, [chatId, setChatsCache]);
+  }, [chatId, safeCachedChats.length, setChatsCache]);
 
   useEffect(() => {
     if (selectedChat) {
