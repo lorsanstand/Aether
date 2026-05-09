@@ -18,7 +18,7 @@ class PubSubMessenger:
 
     @classmethod
     async def subscribe_to_channels(cls):
-        print("test")
+        log.info("Starting Redis PubSub subscriber")
         redis_client = await get_redis()
         pubsub = redis_client.pubsub()
 
@@ -46,11 +46,14 @@ class PubSubMessenger:
     @classmethod
     async def handle_message(cls, payload, ws: WebSocket):
         log.debug("Message start sending type: %s", payload["type"])
-        if payload["type"] == "send":
-            await ws.send_json(payload["data"])
-        elif payload["type"] == "del":
-            await ws.send_json({"type": "del", "message_id": payload["data"]})
-        log.info(f"Message sent to user via WebSocket")
+        try:
+            if payload["type"] == "send":
+                await ws.send_json(payload["data"])
+            elif payload["type"] == "del":
+                await ws.send_json({"type": "del", "message_id": payload["data"]})
+            log.info(f"Message sent to user via WebSocket")
+        except Exception as e:
+            log.error(f"Error sending WebSocket message: {e}", exc_info=True)
 
 
 
