@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ca182f62-efdb-4f7c-b4fa-3db0a3244740" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Dockerfile" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;lorsanstand&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/lorsanstand/Aether.git&quot;,
+    &quot;accountId&quot;: &quot;7d226d82-cbdd-4f01-a2df-d6a90c41dc0d&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="377jRIu8LdWxRZUqlIlKecvcH0N" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.test.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;ai.playground.ignore.import.keys.banner.in.settings&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/lorsan/Projects/Aether&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/frontend" />
+      <recent name="$PROJECT_DIR$/backend/scripts" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/backend/app" />
+      <recent name="$PROJECT_DIR$/backend" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-PY-253.30387.173" />
+        <option value="bundled-python-sdk-4762d8aabb82-6d6dccd035ac-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-253.30387.173" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ca182f62-efdb-4f7c-b4fa-3db0a3244740" name="Changes" comment="" />
+      <created>1766260993924</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1766260993924</updated>
+      <workItem from="1766579069494" duration="537000" />
+      <workItem from="1766821371454" duration="6586000" />
+      <workItem from="1767182789092" duration="61000" />
+      <workItem from="1767436737099" duration="457000" />
+      <workItem from="1767469948303" duration="344000" />
+      <workItem from="1767515834391" duration="3673000" />
+      <workItem from="1767632206964" duration="1009000" />
+      <workItem from="1767702075617" duration="5995000" />
+      <workItem from="1767728758580" duration="1701000" />
+      <workItem from="1767777556289" duration="2238000" />
+      <workItem from="1767894161585" duration="3168000" />
+      <workItem from="1767954037387" duration="3206000" />
+      <workItem from="1768041344558" duration="24517000" />
+      <workItem from="1768145545609" duration="2734000" />
+      <workItem from="1768152718327" duration="3439000" />
+      <workItem from="1768206631384" duration="12898000" />
+      <workItem from="1768234411796" duration="7183000" />
+      <workItem from="1768724458835" duration="4856000" />
+      <workItem from="1768823389064" duration="12094000" />
+      <workItem from="1768917847698" duration="5107000" />
+      <workItem from="1769105143116" duration="384000" />
+      <workItem from="1769175659580" duration="701000" />
+      <workItem from="1769249378321" duration="1583000" />
+      <workItem from="1769255439265" duration="6053000" />
+      <workItem from="1769323001360" duration="8679000" />
+      <workItem from="1769413076919" duration="20372000" />
+      <workItem from="1769440193935" duration="43000" />
+      <workItem from="1769440272013" duration="8398000" />
+      <workItem from="1769526024191" duration="778000" />
+      <workItem from="1769612969196" duration="30000" />
+      <workItem from="1769614076335" duration="1957000" />
+      <workItem from="1769794458540" duration="138000" />
+      <workItem from="1769845775151" duration="151000" />
+      <workItem from="1769845934187" duration="9000" />
+      <workItem from="1770183147191" duration="612000" />
+      <workItem from="1770212893901" duration="4778000" />
+      <workItem from="1770364636251" duration="7167000" />
+      <workItem from="1770412285849" duration="16000" />
+      <workItem from="1773344252513" duration="761000" />
+      <workItem from="1773416003664" duration="3382000" />
+      <workItem from="1773515737128" duration="9276000" />
+      <workItem from="1773642657359" duration="2326000" />
+      <workItem from="1773648107686" duration="1727000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Aether$test.coverage" NAME="test Coverage Results" MODIFIED="1767705414318" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
+  </component>
+</project>

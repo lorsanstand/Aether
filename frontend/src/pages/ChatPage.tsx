@@ -142,38 +142,43 @@ export default function ChatPage() {
           
           // Add or update message in current chat if it belongs to it
           if (selectedChat && message.chat_id === selectedChat.chat_id) {
-            const isNewMessage = !messages.some(m => m.id === message.id);
-            
             setMessages(prev => {
-              // Check if message already exists (update it if edited)
+              // Check if this is replacing a temporary message (sent by current user)
+              const tempMessageIndex = prev.findIndex(m => m.id.startsWith('temp-') && m.sender_id === message.sender_id && m.content === message.content);
+              
+              // Check if message already exists
               const existingIndex = prev.findIndex(m => m.id === message.id);
-              if (existingIndex !== -1) {
-                // Update existing message
+              
+              if (tempMessageIndex !== -1) {
+                // Replace temporary message with real one
+                const updated = [...prev];
+                updated[tempMessageIndex] = message;
+                return updated;
+              } else if (existingIndex !== -1) {
+                // Update existing message (edit case)
                 const updated = [...prev];
                 updated[existingIndex] = message;
                 return updated;
+              } else {
+                // Add new message from other user
+                return [...prev, message];
               }
-              // Add new message
-              return [...prev, message];
             });
             
             // Handle scroll and unread counter for new messages
-            if (isNewMessage) {
-              // Check if this is our own message
-              const isOwnMessage = message.sender_id === user?.id;
-              
-              // Use ref to check current position synchronously
-              setTimeout(() => {
-                if (isOwnMessage || isAtBottomRef.current) {
-                  // Auto-scroll if it's our message or if at bottom
-                  scrollToBottom(true);
-                } else {
-                  // Increment unread counter if not at bottom and not our message
-                  setUnreadCount(prev => prev + 1);
-                  setShowScrollButton(true);
-                }
-              }, 100);
-            }
+            const isOwnMessage = message.sender_id === user?.id;
+            
+            // Use ref to check current position synchronously
+            setTimeout(() => {
+              if (isOwnMessage || isAtBottomRef.current) {
+                // Auto-scroll if it's our message or if at bottom
+                scrollToBottom(true);
+              } else {
+                // Increment unread counter if not at bottom and not our message
+                setUnreadCount(prev => prev + 1);
+                setShowScrollButton(true);
+              }
+            }, 100);
           }
           
           // Update chat list with new last message
@@ -354,15 +359,32 @@ export default function ChatPage() {
     try {
       setSendingMessage(true);
       
+      const messageContent = messageText.trim();
+      
+      // Create a temporary message to show immediately (optimistic update)
+      const tempMessage: Message = {
+        id: `temp-${Date.now()}`, // Temporary ID
+        sender_id: user?.id || 0,
+        chat_id: selectedChat?.chat_id || '',
+        content: messageContent,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      
+      // Add message to UI immediately
+      setMessages(prev => [...prev, tempMessage]);
+      
       // Send message with chat_id (если чат существует) или recipient_id (если новый чат)
-      await chatService.sendMessage({
-        content: messageText.trim(),
+      const sentMessage = await chatService.sendMessage({
+        content: messageContent,
         chat_id: selectedChat?.chat_id,
         recipient_id: selectedChat?.user_id,
       });
 
-      // Don't add message locally - it will come via WebSocket
-      // This prevents duplication
+      // Replace temporary message with real one from backend
+      setMessages(prev => 
+        prev.map(m => m.id === tempMessage.id ? sentMessage : m)
+      );
       
       // Clear input
       setMessageText('');
@@ -370,7 +392,7 @@ export default function ChatPage() {
       // Update chat list with new last message
       const updatedChats = chats.map(chat => 
         chat.chat_id === selectedChat?.chat_id 
-          ? { ...chat, last_message: messageText.trim() }
+          ? { ...chat, last_message: messageContent }
           : chat
       );
       setChats(updatedChats);
@@ -378,11 +400,18 @@ export default function ChatPage() {
       
       // Update cache for specific chat
       if (selectedChat?.chat_id) {
-        updateChatCache(selectedChat.chat_id, { last_message: messageText.trim() });
+        updateChatCache(selectedChat.chat_id, { last_message: messageContent });
       }
+      
+      // Auto-scroll to bottom
+      setTimeout(() => {
+        scrollToBottom(true);
+      }, 100);
     } catch (err: any) {
       console.error('Failed to send message:', err);
       alert('Не удалось отправить сообщение');
+      // Remove temporary message if sending failed
+      setMessages(prev => prev.filter(m => !m.id.startsWith('temp-')));
     } finally {
       setSendingMessage(false);
       // Keep input focused after everything is done

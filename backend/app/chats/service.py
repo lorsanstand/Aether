@@ -92,14 +92,16 @@ class ChatService:
                 )
             )
 
-            await cls._send_ws_message(members_ids, Message.model_validate(message_db))
-
             await ChatDAO.update(
                 session,
                 ChatModel.id==target_chat_id,
                 obj_in={"last_message": message.content}
             )
             await session.commit()
+            
+            # Send WebSocket message AFTER commit to ensure data is persisted
+            await cls._send_ws_message(members_ids, Message.model_validate(message_db))
+            
             log.info("Message sent", extra={"message_id": message_db.id, "sender_id": sender.id, "chat_id": target_chat_id})
             return message_db
 
@@ -202,9 +204,11 @@ class ChatService:
 
             member_ids = [member.user_id for member in members]
 
+            await session.commit()
+            
+            # Send WebSocket message AFTER commit
             await cls._send_ws_message(member_ids, Message.model_validate(message_update_db))
 
-            await session.commit()
             log.info("Message update successfully", extra={"user_id": user.id, "message_id": message_update.id})
             return message_update_db
 
@@ -234,8 +238,10 @@ class ChatService:
             member_ids = [member.user_id for member in members]
 
             await MessageDAO.delete(session, MessageModel.id==message_id)
-
+            
+            await session.commit()
+            
+            # Send WebSocket message AFTER commit
             await cls._delete_ws_message(member_ids, message_id)
 
-            await session.commit()
             log.info("Message delete successfully", extra={"user_id": user.id, "message_id": message_exist.id})

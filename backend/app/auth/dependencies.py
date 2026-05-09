@@ -51,7 +51,7 @@ async def get_current_superuser(current_user: UserModel = Depends(get_current_us
 
 async def get_current_verified_user(current_user: UserModel = Depends(get_current_user)):
     if not current_user.is_verified:
-        log.debug("User has not confirmed the email.", extra={"user_id": str(current_user.id)})
-        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="verify email")
+        log.debug("User has not confirmed the email", extra={"user_id": str(current_user.id)})
+        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="Verify email")
 
     return current_user
