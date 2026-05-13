@@ -182,16 +182,57 @@ export default function ChatPage() {
           }
           
           // Update chat list with new last message
-          setChats(prevChats => 
-            prevChats.map(chat => 
+          setChats(prevChats => {
+            const existingIndex = prevChats.findIndex(chat => chat.chat_id === message.chat_id);
+
+            if (existingIndex === -1) {
+              const otherUserId = message.sender_id === user?.id ? selectedChat?.user_id : message.sender_id;
+              const newChat: Chat = {
+                chat_id: message.chat_id,
+                user_id: otherUserId || 0,
+                last_message: message.content,
+                avatar_url: null,
+                display_name: 'Новый чат'
+              };
+
+              const updated = [newChat, ...prevChats];
+              setChatsCache(updated);
+
+              if (otherUserId) {
+                userService.getUserById(otherUserId)
+                  .then((userData) => {
+                    setChats(current => {
+                      const hydrated = current.map(chat =>
+                        chat.chat_id === message.chat_id
+                          ? {
+                              ...chat,
+                              user_id: userData.id,
+                              display_name: userData.display_name || userData.username,
+                              avatar_url: userData.avatar_url || null
+                            }
+                          : chat
+                      );
+                      setChatsCache(hydrated);
+                      return hydrated;
+                    });
+                  })
+                  .catch((err) => {
+                    console.error('Failed to load chat user:', err);
+                  });
+              }
+
+              return updated;
+            }
+
+            const updated = prevChats.map(chat => 
               chat.chat_id === message.chat_id 
                 ? { ...chat, last_message: message.content }
                 : chat
-            )
-          );
-          
-          // Update cache
-          updateChatCache(message.chat_id, { last_message: message.content });
+            );
+            setChatsCache(updated);
+            updateChatCache(message.chat_id, { last_message: message.content });
+            return updated;
+          });
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
         }

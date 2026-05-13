@@ -58,6 +58,27 @@ async def login(response: Response, credentials: OAuth2PasswordRequestForm = Dep
     )
     return token
 
+@router.post("/guest")
+async def guest_login(response: Response) -> Token:
+    user = await UserService.create_guest_user()
+    token = await AuthService.create_token(user.id)
+
+    response.set_cookie(
+        'access_token',
+        token.access_token,
+        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        httponly=True,
+        samesite='lax'
+    )
+    response.set_cookie(
+        'refresh_token',
+        str(token.refresh_token),
+        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 30 * 24 * 60,
+        httponly=True,
+        samesite='lax'
+    )
+    return token
+
 @router.post("/refresh")
 async def refresh_token(request: Request, response: Response) -> Token:
     new_token = await AuthService.refresh_token(uuid.UUID(request.cookies.get("refresh_token")))

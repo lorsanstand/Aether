@@ -27,6 +27,11 @@ export const authService = {
     return response.data;
   },
 
+  guestLogin: async () => {
+    const response = await apiClient.post('/auth/guest');
+    return response.data;
+  },
+
   register: async (data: RegisterData) => {
     const response = await apiClient.post('/auth/register', data);
     return response.data;
