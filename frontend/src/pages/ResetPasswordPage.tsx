@@ -78,7 +78,7 @@ export default function ResetPasswordPage() {
               AETHER
             </div>
             <h2 className="text-xl font-lora font-semibold" style={{ color: '#2C2C2C' }}>
-              Сброс пароля
+              Установка нового пароля
             </h2>
           </div>
 

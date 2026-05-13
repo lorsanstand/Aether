@@ -51,7 +51,7 @@ export default function ForgotPasswordPage() {
               AETHER
             </div>
             <h2 className="text-xl font-lora font-semibold" style={{ color: 'var(--text-primary)' }}>
-              Восстановление пароля
+              Запрос сброса пароля
             </h2>
             <p className="mt-2 text-sm font-inter" style={{ color: 'var(--text-secondary)' }}>
               Введите почту или никнейм для получения ссылки на сброс пароля

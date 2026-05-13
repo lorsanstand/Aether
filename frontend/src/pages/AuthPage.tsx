@@ -41,7 +41,7 @@ export default function AuthPage() {
                 exit={{ opacity: 0, y: 10 }}
                 transition={{ duration: 0.2 }}
               >
-                {isLogin ? 'Добро пожаловать!' : 'Присоединяйтесь'}
+                {isLogin ? 'Вход в аккаунт' : 'Создание аккаунта'}
               </motion.h1>
             </AnimatePresence>
           </div>
