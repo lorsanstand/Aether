@@ -747,12 +747,6 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* Footer Info */}
-        <div className="p-4 border-t text-center" style={{ borderColor: 'var(--border-color)' }}>
-          <p className="text-xs font-inter" style={{ color: 'var(--text-secondary)' }}>
-            Aether Chat v1.0
-          </p>
-        </div>
       </div>
 
       {/* Main Chat Area */}
@@ -1157,7 +1151,7 @@ export default function ChatPage() {
                   <img src={miniLogo} alt="Aether Logo" className="w-full h-full object-contain" />
                 </div>
                 <h2 className="text-2xl font-lora font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>
-                  Добро пожаловать в Aether
+                  Aether
                 </h2>
                 <p className="font-inter" style={{ color: 'var(--text-secondary)' }}>
                   Выберите существующий чат из списка слева или создайте новый, чтобы начать общение
