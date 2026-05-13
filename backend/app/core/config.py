@@ -19,6 +19,11 @@ class Settings(BaseSettings):
     FIRST_SUPER_USER_PASS: str
     FIRST_SUPER_USER_USERNAME: str
 
+    GUEST_USER_EMAIL: str = "guest@example.com"
+    GUEST_USER_USERNAME: str = "guest"
+    GUEST_USER_DISPLAY_NAME: str = "Гость"
+    GUEST_USER_PASSWORD: str = "guest"
+
     CORS_ORIGINS: List[str] = ["http://localhost:5500", "http://127.0.0.1:5500", "http://localhost:8080", "http://127.0.0.1:8080", "null"]
     CORS_HEADERS: List[str] = ["*"]
     CORS_METHODS: List[str] = ["*"]

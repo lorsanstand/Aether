@@ -22,6 +22,31 @@ log = logging.getLogger(__name__)
 
 class UserService:
     @classmethod
+    async def create_guest_user(cls) -> UserModel:
+        async with async_session_maker() as session:
+            unique = uuid.uuid4().hex[:8]
+            username_prefix = settings.GUEST_USER_USERNAME or "guest"
+            email_base = settings.GUEST_USER_EMAIL or "guest@example.com"
+            if "@" in email_base:
+                _, domain = email_base.split("@", 1)
+            else:
+                domain = "example.com"
+
+            user_db = await UserDAO.add(
+                session,
+                UserCreateDB(
+                    display_name=f"{settings.GUEST_USER_DISPLAY_NAME} #{unique[:4]}",
+                    username=f"{username_prefix}_{unique}",
+                    email=f"{username_prefix}_{unique}@{domain}",
+                    hashed_password=hash_password(uuid.uuid4().hex),
+                    is_active=True,
+                    is_verified=True,
+                    is_superuser=False
+                )
+            )
+            await session.commit()
+            return user_db
+    @classmethod
     async def get_user(cls, user_id: int) -> User:
         async with async_session_maker() as session:
             user_exist = await UserDAO.find_one_or_none(session, id=user_id)

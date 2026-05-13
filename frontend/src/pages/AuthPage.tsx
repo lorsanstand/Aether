@@ -1,11 +1,33 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import LoginForm from '../components/auth/LoginForm';
 import RegisterForm from '../components/auth/RegisterForm';
 import miniLogo from '../assets/mini-logo.png';
+import { authService } from '../services/authService';
+import { useAuthStore } from '../store/authStore';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
+  const [guestError, setGuestError] = useState('');
+  const [isGuestLoading, setIsGuestLoading] = useState(false);
+  const navigate = useNavigate();
+  const setUser = useAuthStore((state) => state.setUser);
+
+  const handleGuestLogin = async () => {
+    setGuestError('');
+    setIsGuestLoading(true);
+    try {
+      await authService.guestLogin();
+      const user = await authService.getCurrentUser();
+      setUser(user);
+      navigate('/chat');
+    } catch (err: any) {
+      setGuestError(err.response?.data?.detail || 'Не удалось войти как гость');
+    } finally {
+      setIsGuestLoading(false);
+    }
+  };
 
   return (
     <div className="w-screen h-screen flex items-center justify-center p-3 md:p-4 relative overflow-hidden" style={{ backgroundColor: '#F5F5F1' }}>
@@ -58,6 +80,28 @@ export default function AuthPage() {
               {isLogin ? <LoginForm /> : <RegisterForm />}
             </motion.div>
           </AnimatePresence>
+
+          <div className="mt-5 md:mt-6">
+            {guestError && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-3 mb-4 bg-error-soft/10 border-b-2 border-error-soft text-error-soft text-sm font-inter"
+              >
+                {guestError}
+              </motion.div>
+            )}
+            <motion.button
+              type="button"
+              disabled={isGuestLoading}
+              onClick={handleGuestLogin}
+              whileTap={{ scale: 0.97 }}
+              className="w-full py-[14px] px-8 rounded-full font-inter font-semibold uppercase tracking-wider border-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ borderColor: '#6B705C', color: '#6B705C' }}
+            >
+              {isGuestLoading ? 'Вход...' : 'Войти как гость'}
+            </motion.button>
+          </div>
 
           {/* Switch */}
           <div className="mt-5 md:mt-6 text-center text-xs md:text-sm font-inter" style={{ color: '#8B8B8B' }}>
